@@ -1,15 +1,15 @@
 import React from 'react';
-import AuthForm from "../components/loginForm/AuthForm";
 import {Container} from "react-bootstrap";
+import SignupForm from "../components/signupForm/SignupForm";
 
-const Auth = () => {
+const Signup = () => {
 
     return (
         <Container>
-            <AuthForm />
+            <SignupForm />
         </Container>
     );
 
 };
 
-export default Auth;
+export default Signup;

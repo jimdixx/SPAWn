@@ -5,7 +5,8 @@ import About from "./pages/About";
 import Detect from "./pages/Detect";
 import Configuration from "./pages/Configuration";
 import MainPage from "./pages/MainPage";
-import Auth from "./pages/Auth";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const App = () => {
 
@@ -17,7 +18,8 @@ const App = () => {
           <Route path='/about' element={<About />} />
           <Route path='/detect' element={<Detect />} />
           <Route path='/configuration' element={<Configuration />} />
-          <Route path='/auth' element={<Auth />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
         </Routes>
       </Router>
   );

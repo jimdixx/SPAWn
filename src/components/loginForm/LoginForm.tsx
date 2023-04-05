@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Form, Button} from "react-bootstrap";
 
 
-const AuthForm = () => {
+const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -40,4 +40,4 @@ const AuthForm = () => {
     );
 };
 
-export default AuthForm;
+export default LoginForm;

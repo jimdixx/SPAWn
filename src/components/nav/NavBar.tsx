@@ -16,7 +16,7 @@ const NavBar = () => {
                         <Nav.Link href="/detect">Detect</Nav.Link>
                         <Nav.Link href="/configuration">Configuration</Nav.Link>
                     </Nav>
-                    <Nav.Link href="/auth">Sign in</Nav.Link>
+                    <Nav.Link href="/login">Sign in</Nav.Link>
                 </Navbar.Collapse>
             </Container>
         </Navbar>
