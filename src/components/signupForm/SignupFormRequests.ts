@@ -1,18 +1,37 @@
-import axios, {Axios, AxiosResponse} from 'axios';
+import axios, {AxiosResponse} from 'axios';
 
-interface MyData {
+interface DataToSend {
     name: string,
     email: string,
     password: string
 }
 
+interface ErrorResponse {
+    status: number,
+    message: string
+}
 
-const postData = async (url: string, data: MyData): Promise<AxiosResponse<any>> => {
+interface DataToObtain {
+    status: number,
+    message: string
+}
+
+const postData = async (url: string, d: DataToSend): Promise<DataToObtain | ErrorResponse> => {
     try {
-        let response = await axios.post<MyData>(url, data);
-        return response;
+        const response: AxiosResponse<DataToObtain> = await axios.post<DataToObtain>(url, d);
+        const { status, data } = response;
+        return {status, message: data.message};
     } catch (error: any) {
-        return error;
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                const { status, data } = error.response;
+                return { status, message: data.message || 'Something went wrong!' };
+            } else {
+                return { status: 500, message: 'Server error' };
+            }
+        } else {
+            throw error;
+        }
     }
 };
 

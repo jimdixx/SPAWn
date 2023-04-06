@@ -1,8 +1,9 @@
 import React, {ChangeEvent, useState} from "react";
 import {Form, Button} from "react-bootstrap";
 import {validateEmail, validatePassword} from "../helperFunctions/signupFormValidator";
-import SignupFormRequests from "./SignupFormRequests";
 import postData from "./SignupFormRequests";
+import AlertComponent from "../alerts/AlertComponent";
+
 const SignupForm = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -10,9 +11,11 @@ const SignupForm = () => {
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const [isEmailValid, setIsEmailValid] = useState(true);
     const [passwordMatches, setPasswordMatches] = useState(true);
-    const [status, setStatus] = useState("");
-    const [error, setError] = useState(null);
-
+    const [data, setData] = useState({
+        status: 0,
+        message: ""
+    });
+    const [error, setError] = useState(undefined);
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,10 +35,10 @@ const SignupForm = () => {
             let response = postData(url, data);
             response
                 .then((result) => {
-                    setStatus(result.data.message);
+                    setData(result);
                 })
                 .catch((error) => {
-                    setStatus("An error has occurred");
+                    setError(error.text);
                 })
 
         }
@@ -75,6 +78,10 @@ const SignupForm = () => {
 
     const passwordStyle = {
         backgroundColor: passwordMatches ? "white" : "red"
+    };
+
+    const buttonStyle = {
+        marginTop: "5px"
     };
 
     return (
@@ -121,10 +128,14 @@ const SignupForm = () => {
                 />
             </Form.Group>
 
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit"
+                style={buttonStyle}
+            >
                 Submit
             </Button>
-            {status === "" ? "" : status}
+            {data.status > 0 &&
+                <AlertComponent type={data.status === 200 ? 'success' : 'danger'} message={data.message} />
+            }
         </Form>
     );
 };
