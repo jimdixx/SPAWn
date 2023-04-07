@@ -13,7 +13,7 @@ const LoginForm = () => {
     const [data, setData] = useState({
         status: 200,
         jwtToken: "",
-        msg: ""
+        message: ""
     });
 
     useEffect(() => {
@@ -69,7 +69,7 @@ const LoginForm = () => {
             <Button variant="primary" type="submit">
                 Submit
             </Button>
-            {data.status !== 200 ? <AlertComponent type='danger' message={data.msg} /> : <></>}
+            {data.status !== 200 ? <AlertComponent type='danger' message={data.message} /> : <></>}
         </Form>
     );
 };

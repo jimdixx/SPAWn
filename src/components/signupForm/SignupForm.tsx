@@ -13,7 +13,7 @@ const SignupForm = () => {
     const [passwordMatches, setPasswordMatches] = useState(true);
     const [data, setData] = useState({
         status: 0,
-        msg: ""
+        message: ""
     });
     const [error, setError] = useState(undefined);
 
@@ -131,7 +131,7 @@ const SignupForm = () => {
                 Submit
             </Button>
             {data.status > 0 &&
-                <AlertComponent type={data.status === 201 ? 'success' : 'danger'} message={data.msg} />
+                <AlertComponent type={data.status === 201 ? 'success' : 'danger'} message={data.message} />
             }
         </Form>
     );
