@@ -1,14 +1,35 @@
 import React, {useState} from "react";
 import {Form, Button} from "react-bootstrap";
+import login from "./LoginFormRequests";
 
 
 const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [data, setData] = useState({
+        status: 0,
+        jwtToken: "",
+        msg: ""
+    });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // onSubmit(username, password);
+
+        const url = "http://localhost:8080/v2/user/login";
+
+        const data = {
+            name: username,
+            password: password
+        }
+
+        let response = login(url, data);
+        response
+            .then((result) => {
+                setData(result);
+            })
+            .catch((error) => setError(error))
+
     };
 
     return (
