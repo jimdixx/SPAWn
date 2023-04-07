@@ -24,7 +24,7 @@ const LoginForm = () => {
 
     }, [navigate, data.jwtToken]);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
 
@@ -36,12 +36,12 @@ const LoginForm = () => {
             password: password
         }
 
-        let response = login(url, loginData);
-        response
-            .then((result) => {
-                setData(result);
-            })
-            .catch((error) => setError(error))
+        try {
+            const result = await login(url, loginData);
+            setData(result);
+        } catch (error: any) {
+            setError(error);
+        }
     };
 
     return (

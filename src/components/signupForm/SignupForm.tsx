@@ -18,7 +18,7 @@ const SignupForm = () => {
     const [error, setError] = useState(undefined);
 
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const url = "http://localhost:8080/v2/user/register";
 
@@ -32,15 +32,12 @@ const SignupForm = () => {
                 password: password
             }
 
-            let response = postData(url, data);
-            response
-                .then((result) => {
-                    setData(result);
-                })
-                .catch((error) => {
-                    setError(error.text);
-                })
-
+            try {
+                let response = await postData(url, data);
+                setData(response);
+            } catch (error: any) {
+                setError(error.text);
+            }
         }
     };
 
