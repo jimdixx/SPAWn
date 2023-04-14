@@ -38,6 +38,7 @@ const LoginForm = () => {
 
         try {
             const result = await login(url, loginData);
+            localStorage.setItem('jwt_token', result.jwtToken);
             setData(result);
         } catch (error: any) {
             setError(error);
