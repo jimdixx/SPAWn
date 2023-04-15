@@ -72,7 +72,7 @@ const LoginComponent = () => {
                         <h1>You are logged in!</h1>
                         <br />
                         <p>
-                            jdi do prčič.
+                            jdi do prčič. hello world!
                         </p>
                     </section>
                 ) : (
