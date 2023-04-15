@@ -7,6 +7,7 @@ import {Container} from "react-bootstrap";
 import {refreshToken, saveUserInfoToStorage} from "../../context/LocalStorageManager";
 
 const LOGIN_URL = '/user/login';
+// import { Paper } from '@mui/material';
 
 const LoginComponent = () => {
     const paperStyle = {padding:'50px 20px'}
@@ -33,8 +34,8 @@ const LoginComponent = () => {
 
         try {
             const response = await axios.post(LOGIN_URL,
-                JSON.stringify({ name: user, password: pwd}), {
-                    headers: { 'Content-Type': 'application/json'},
+                JSON.stringify({name: user, password: pwd}), {
+                    headers: {'Content-Type': 'application/json'},
                     withCredentials: true
                 });
             console.log(JSON.stringify(response?.data));
@@ -68,13 +69,13 @@ const LoginComponent = () => {
     return (
         <>
             {success ? (
-                    <section>
-                        <h1>You are logged in!</h1>
+                    <Container>
+                        <h1 style={{color:"green"}}><u>You are logged in! </u></h1>
                         <br />
                         <p>
                             jdi do prčič. hello world!
                         </p>
-                    </section>
+                    </Container>
                 ) : (
                 <section>
                     <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live={"assertive"}>{errMsg}</p>
@@ -103,8 +104,8 @@ const LoginComponent = () => {
                     <p>
                         Need an Account? <br/>
                         <span className="line">
-                    <Link to="/signup">Sign Up</Link>
-                </span>
+                            <Link to="/signup">Sign Up</Link>
+                        </span>
                     </p>
                 </section>
                 )
