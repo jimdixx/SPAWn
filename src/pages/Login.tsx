@@ -1,12 +1,12 @@
 import React from 'react';
-import LoginForm from "../components/loginForm/LoginForm";
 import {Container} from "react-bootstrap";
+import LoginComponent from "../components/loginForm/LoginComponent";
 
 const Login = () => {
 
     return (
         <Container>
-            <LoginForm />
+            <LoginComponent />
             <p>Not a member yet? <a href="/signup">Sign up now!</a> </p>
         </Container>
     );

@@ -18,7 +18,7 @@ const App = () => {
                 <Route path='/' element={<MainPage/>}/>
                 <Route path='/about' element={<About/>}/>
                 <Route path="/detect" element={<PrivateRoute component={Detect}/>}/>
-                <Route path='/configuration' element={<Configuration/>}/>
+                <Route path='/configuration' element={<PrivateRoute component={Configuration}/>}/>
                 <Route path='/login' element={<LoginComponent/>}/>
                 <Route path='/signup' element={<Signup/>}/>
             </Routes>
