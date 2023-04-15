@@ -1,7 +1,8 @@
 import axios from 'axios';
+const BASE_URL = 'http://localhost:8080/v2';
 
 export default axios.create({
-   baseURL: 'http://localhost:8080/v2'
+   baseURL: BASE_URL
 });
 
 export const axiosPrivate = axios.create({
