@@ -1,13 +1,16 @@
 import React, {useRef, useState, useEffect, useContext} from 'react';
 import {Link} from "react-router-dom";
-import AuthContext from "../context/AuthProvider";
 
-import axios from '../api/axios';
+import axios from '../../api/axios';
+import {AuthContext} from "../../context/AuthProvider";
+import {Container} from "react-bootstrap";
+import {refreshToken, saveUserInfoToStorage} from "../../context/LocalStorageManager";
 
 const LOGIN_URL = '/user/login';
 
 const LoginComponent = () => {
-    const { setAuth } = useContext(AuthContext);
+    const paperStyle = {padding:'50px 20px'}
+    const { setToken } = useContext(AuthContext);
 
     const userRef = useRef<any>();
     const errRef = useRef<any>();
@@ -37,19 +40,12 @@ const LoginComponent = () => {
             console.log(JSON.stringify(response?.data));
 
             const accessToken = response?.data?.jwtToken;
-            // setAuth({ user, pwd, accessToken})
 
-            /*
-            const data = {
-                name: user,
-                jwtToken: accessToken
-            };
-
-            localStorage.setItem("user", JSON.stringify(data));
-            */
-
-            localStorage.setItem("name", user);
-            localStorage.setItem("jwtToken", accessToken);
+            const dataToStore = {userName: user, jwt: accessToken};
+            //store user date in memory for further use
+            saveUserInfoToStorage(JSON.stringify(dataToStore));
+            refreshToken(10_000);
+            //saveToLocalStorage("user_info", )
 
             setUser('');
             setPwd('');

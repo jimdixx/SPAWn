@@ -1,16 +1,28 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+interface AuthContextType {
+    token: string;
+    setToken: (token: string) => void;
+}
 
-const AuthContext = createContext<any>({});
+export const AuthContext = createContext<AuthContextType>({
+    token: '',
+    setToken: () => {},
+});
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [auth, setAuth] = useState({});
+const TOKEN_KEY = 'definetly_not_token';
+
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
+
+    useEffect(() => {
+        localStorage.setItem(TOKEN_KEY, token);
+    }, [token]);
 
     return (
-        <AuthContext.Provider value={{ auth, setAuth }} >
-            {/*https://www.youtube.com/watch?v=X3qyxo_UTR4&ab_channel=DaveGray 16:20*/}
+        <AuthContext.Provider value={{ token, setToken }}>
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
-export default AuthContext;
+export default AuthProvider;

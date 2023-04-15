@@ -2,10 +2,8 @@ import React, {useContext, useEffect, useState} from 'react';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
-import AuthContext from '../../context/AuthProvider'
 
 const NavBar = () => {
-
 
     return (
         <Navbar bg="light" expand="lg">

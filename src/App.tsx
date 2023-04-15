@@ -6,7 +6,7 @@ import Detect from "./pages/Detect";
 import Configuration from "./pages/Configuration";
 import MainPage from "./pages/MainPage";
 import Signup from "./pages/Signup";
-import LoginComponent from "./pages/LoginComponent";
+import LoginComponent from "./components/loginForm/LoginComponent";
 import { PrivateRoute } from './components/helperFunctions/PrivateRoute';
 
 const App = () => {
