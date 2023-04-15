@@ -10,19 +10,19 @@ import LoginComponent from "./pages/LoginComponent";
 
 const App = () => {
 
-  return (
-      <Router>
-        <NavBar />
-        <Routes>
-          <Route path='/' element={<MainPage />} />
-          <Route path='/about' element={<About />} />
-          <Route path='/detect' element={<Detect />} />
-          <Route path='/configuration' element={<Configuration />} />
-          <Route path='/login' element={<LoginComponent />} />
-          <Route path='/signup' element={<Signup />} />
-        </Routes>
-      </Router>
-  );
+    return (
+        <Router>
+            <NavBar/>
+            <Routes>
+                <Route path='/' element={<MainPage/>}/>
+                <Route path='/about' element={<About/>}/>
+                <Route path='/detect' element={<Detect/>}/>
+                <Route path='/configuration' element={<Configuration/>}/>
+                <Route path='/login' element={<LoginComponent/>}/>
+                <Route path='/signup' element={<Signup/>}/>
+            </Routes>
+        </Router>
+    );
 };
 
 
