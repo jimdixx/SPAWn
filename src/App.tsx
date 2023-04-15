@@ -7,6 +7,7 @@ import Configuration from "./pages/Configuration";
 import MainPage from "./pages/MainPage";
 import Signup from "./pages/Signup";
 import LoginComponent from "./pages/LoginComponent";
+import { PrivateRoute } from './components/helperFunctions/PrivateRoute';
 
 const App = () => {
 
@@ -16,7 +17,7 @@ const App = () => {
             <Routes>
                 <Route path='/' element={<MainPage/>}/>
                 <Route path='/about' element={<About/>}/>
-                <Route path='/detect' element={<Detect/>}/>
+                <Route path="/detect" element={<PrivateRoute component={Detect}/>}/>
                 <Route path='/configuration' element={<Configuration/>}/>
                 <Route path='/login' element={<LoginComponent/>}/>
                 <Route path='/signup' element={<Signup/>}/>

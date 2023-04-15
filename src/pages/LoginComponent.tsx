@@ -39,12 +39,17 @@ const LoginComponent = () => {
             const accessToken = response?.data?.jwtToken;
             // setAuth({ user, pwd, accessToken})
 
+            /*
             const data = {
                 name: user,
                 jwtToken: accessToken
             };
 
             localStorage.setItem("user", JSON.stringify(data));
+            */
+
+            localStorage.setItem("name", user);
+            localStorage.setItem("jwtToken", accessToken);
 
             setUser('');
             setPwd('');
