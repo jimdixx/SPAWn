@@ -10,7 +10,7 @@ export default axios.create({
 
 export const axiosPrivate = () => {
    const token = retrieveJwtToken();
-   if(token == null){
+   if(token == null) {
       //non existent token
       //user must first log in
       return null;

@@ -5,15 +5,15 @@ interface Props {
     path?: string
 }
 
-function isUserLoggedIn(): boolean {
-    const jwtToken = localStorage.getItem('jwtToken');
-    return jwtToken !== null;
-}
+// function isUserLoggedIn(): boolean {
+//     const jwtToken = localStorage.getItem('user_info');
+//     return jwtToken !== null;
+// }
 
 export const PrivateRoute: React.FC<Props> = ({ component: RouteComponent }) => {
 
 
-    const userLoggedIn = isUserLoggedIn();
+    const userLoggedIn = hasUserToken();
 
     if (userLoggedIn) {
         return <RouteComponent />

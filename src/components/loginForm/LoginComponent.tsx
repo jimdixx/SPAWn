@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import axios from '../../api/axios';
 import {AuthContext} from "../../context/AuthProvider";
 import {Container} from "react-bootstrap";
-import {refreshToken, saveUserInfoToStorage} from "../../context/LocalStorageManager";
+import {saveUserInfoToStorage} from "../../context/LocalStorageManager";
 
 const LOGIN_URL = '/user/login';
 // import { Paper } from '@mui/material';
@@ -45,8 +45,6 @@ const LoginComponent = () => {
             const dataToStore = {userName: user, jwt: accessToken};
             //store user date in memory for further use
             saveUserInfoToStorage(JSON.stringify(dataToStore));
-            refreshToken(10_000);
-            //saveToLocalStorage("user_info", )
 
             setUser('');
             setPwd('');
