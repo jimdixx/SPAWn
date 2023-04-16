@@ -1,5 +1,5 @@
 import {axiosPrivate} from "../api/axios";
-import {AxiosInstance} from "axios";
+import {AxiosInstance, AxiosResponse} from "axios";
 import jwt_decode from "jwt-decode";
 
 const TOKEN_URL = "/user/refresh";

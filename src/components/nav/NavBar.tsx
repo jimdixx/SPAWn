@@ -3,6 +3,12 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
 
+/**
+ * axios.create()
+ * if null
+ *    isLoggedIn = false
+ * @constructor
+ */
 const NavBar = () => {
 
     return (

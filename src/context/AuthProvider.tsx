@@ -18,7 +18,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         localStorage.setItem(TOKEN_KEY, token);
     }, [token]);
 
-    return (
+    return ( //vykresli modalni okno if user is not logged in else nevykresli nic
         <AuthContext.Provider value={{ token, setToken }}>
             {children}
         </AuthContext.Provider>
