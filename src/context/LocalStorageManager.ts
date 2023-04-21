@@ -1,9 +1,8 @@
 import {axiosPrivate} from "../api/axios";
 import {AxiosInstance, AxiosResponse} from "axios";
 import jwt_decode from "jwt-decode";
-
 const TOKEN_URL = "/user/refresh";
-
+    
     const saveToLocalStorage = (key:string,value:string) => {
         localStorage.setItem(key,value);
     }
@@ -47,10 +46,7 @@ const TOKEN_URL = "/user/refresh";
         const timeRemaining = tokenExpTime - time;
         // token life is greater than half of the lifespan of token, user is considered to be logged in
         // user has a lot of time to do some action to get refreshed token
-        if(timeRemaining > ((tokenExpTime - tokenIatTime) / 2)) {
-            return true;
-        }
-        return false;
+        return timeRemaining > ((tokenExpTime - tokenIatTime) / 2);
     }
 
 

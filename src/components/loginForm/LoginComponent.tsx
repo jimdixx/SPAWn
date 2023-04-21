@@ -1,21 +1,14 @@
 import React, {useRef, useState, useEffect, useContext} from 'react';
 import {Link} from "react-router-dom";
-
-import axios from '../../api/axios';
-import {AuthContext} from "../../context/AuthProvider";
 import {Container} from "react-bootstrap";
+import {login} from "../../api/APILogin";
+import {useSignIn} from "react-auth-kit";
 import {saveUserInfoToStorage} from "../../context/LocalStorageManager";
 
-const LOGIN_URL = '/user/login';
-// import { Paper } from '@mui/material';
-
 const LoginComponent = () => {
-    const paperStyle = {padding:'50px 20px'}
-    const { setToken } = useContext(AuthContext);
-
     const userRef = useRef<any>();
     const errRef = useRef<any>();
-
+    const signIn = useSignIn();
     const [user, setUser] = useState('');
     const [pwd, setPwd] = useState('');
     const [errMsg, setErrMsg] = useState('');
@@ -31,37 +24,31 @@ const LoginComponent = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        try {
-            const response = await axios.post(LOGIN_URL,
-                JSON.stringify({name: user, password: pwd}), {
-                    headers: {'Content-Type': 'application/json'},
-                    withCredentials: true
-                });
-            console.log(JSON.stringify(response?.data));
-
-            const accessToken = response?.data?.jwtToken;
-
+        //send login request to server
+        //todo define custom interface for return type
+        //todo i am very lazy to do that
+        const responseWrapper: {message:string; status:number; token:string} = await login(user,pwd);
+        const accessToken:string = responseWrapper.token;
+        const statusCode:number = responseWrapper.status;
+        //login went well
+        if(statusCode<400){
+            signIn({
+                token:accessToken,
+                expiresIn: 3600,
+                tokenType: "Bearer",
+                authState: {userName:user}
+            });
             const dataToStore = {userName: user, jwt: accessToken};
             //store user date in memory for further use
             saveUserInfoToStorage(JSON.stringify(dataToStore));
-
             setUser('');
             setPwd('');
             setSuccess(true);
-        } catch (error: any) {
-            if (!error?.reponse) {
-                setErrMsg('No Server Response');
-            } else if (error.response?.status === 400) {
-                setErrMsg('Missing Username or Password');
-            } else if (error.response?.status === 401) {
-                setErrMsg('Unauthorized');
-            } else {
-                setErrMsg('Login Failed');
-            }
-            errRef.current.focus();
+            return;
         }
-
+        //something went terribly wrong
+        setErrMsg(responseWrapper.message);
+        errRef.current.focus();
     }
 
     return (
