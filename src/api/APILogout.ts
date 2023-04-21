@@ -1,0 +1,19 @@
+import {axiosPrivate} from "../api/axios";
+import {AxiosInstance} from "axios";
+
+const LOGOUT_URL = '/user/logout';
+export const logoutUser = async (username:string)=>{
+    if(!username)return false;
+    console.log(`logging out user ${username}`);
+    const el: AxiosInstance | null = axiosPrivate();
+
+    const response = el?.post(LOGOUT_URL,{name: username});
+    console.log(response);
+    /*
+    const response = await axios.post(LOGOUT_URL,
+            JSON.stringify({name: username} ), {
+            headers: {'Content-Type': 'application/json'},
+            withCredentials: true
+    });*/
+    return true;
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import NavBar from "./components/nav/NavBar";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import About from "./pages/About";
@@ -6,20 +6,17 @@ import Detect from "./pages/Detect";
 import Configuration from "./pages/Configuration";
 import MainPage from "./pages/MainPage";
 import Signup from "./pages/Signup";
+import Logout from "./pages/Logout";
 import LoginComponent from "./components/loginForm/LoginComponent";
 import { PrivateRoute } from './components/helperFunctions/PrivateRoute';
-import {RequireAuth,useSignOut} from "react-auth-kit";
+import {RequireAuth} from "react-auth-kit";
 //<PrivateRoute component={Detect}/>
 //TODO logout
 const App = () => {
-const signOut = useSignOut();
-//TODO move router to child component
-//render signout <a> if user is logged in
-const logout = ()=>{
-    //signout user - ie invalidate localstorage/cookies
-    signOut();
-}
+
+
     return (
+
         <Router>
             <NavBar/>
             <Routes>
@@ -39,10 +36,14 @@ const logout = ()=>{
                         </RequireAuth>
                 }
                 />
+
+                <Route path="/logout" Component={Logout}/>
                 <Route path='/login' element={<LoginComponent/>}/>
-                <Route path='/signup' element={<Signup/>}/>
+
             </Routes>
         </Router>
+
+
     );
 };
 

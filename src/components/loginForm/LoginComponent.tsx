@@ -14,6 +14,7 @@ const LoginComponent = () => {
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
 
+    //TODO nekdy hazi uplne mega spiralu erroru
     useEffect(() => {
         userRef.current.focus();
     }, []);
@@ -38,7 +39,7 @@ const LoginComponent = () => {
                 tokenType: "Bearer",
                 authState: {userName:user}
             });
-            const dataToStore = {userName: user, jwt: accessToken};
+            const dataToStore = {userName: user};
             //store user date in memory for further use
             saveUserInfoToStorage(JSON.stringify(dataToStore));
             setUser('');

@@ -95,7 +95,17 @@ const TOKEN_URL = "/user/refresh";
         }
         saveToLocalStorage("user_info",value);
     }
+    export const retrieveBearerCookie = () =>{
 
+        const cookieName = "token";
+        //cookies are stored as one single string in browser separated by ';' delimiter
+        //if in this string we can find substring that in format token=anything but not ';'
+        //then thats the cookie (token) we are looking for
+        const cookieMatch = document.cookie.match(new RegExp('(^| )' + cookieName + '=([^;]+)'));
+        if(cookieMatch)
+            return cookieMatch[2];
+
+    }
     export const retrieveJwtToken =  () => {
         const jsonInfo = retrieveFromLocalStorage("user_info");
         //no user info exists in local storage
@@ -106,3 +116,19 @@ const TOKEN_URL = "/user/refresh";
         const userInfo = JSON.parse(jsonInfo);
         return userInfo.jwt;
     }
+
+export const retrieveUsernameFromStorage = () => {
+    const jsonInfo = retrieveFromLocalStorage("user_info");
+    //no user info exists in local storage
+    //user is not logged in
+    if(jsonInfo == null) {
+        return null;
+    }
+    const userInfo = JSON.parse(jsonInfo);
+    return userInfo.userName;
+}
+
+//burn it all down
+export const invalidateLocalStorage = () =>{
+        localStorage.clear();
+}

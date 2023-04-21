@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {retrieveJwtToken} from "../context/LocalStorageManager";
+import {retrieveBearerCookie, retrieveJwtToken} from "../context/LocalStorageManager";
 const BASE_URL = 'http://localhost:8080/v2';
 
 
@@ -9,7 +9,8 @@ export default axios.create({
 });
 
 export const axiosPrivate = () => {
-   const token = retrieveJwtToken();
+   //const token = retrieveJwtToken();
+   const token = retrieveBearerCookie();
    if(token == null) {
       //non existent token
       //user must first log in
