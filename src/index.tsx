@@ -5,21 +5,21 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import 'bootstrap/dist/css/bootstrap.css';
-import AuthProvider from "./context/AuthProvider";
-import {isUserLoggedIn} from "././context/LocalStorageManager";
-
+//third party library that manages authentication
+import {AuthProvider} from "react-auth-kit"
 
 const initializeApp = async() =>{
-    const isLogged:any = await isUserLoggedIn();
-    if(!isLogged) {
-        console.log("not logged in");
-        //vykresli modalni formular
-    }
-    else
-        console.log("logged in");
+    //[JT]
+    //auth type can be cookie or localstorage
+    //cookie is safer but localstorage can be used aswell
     root.render(
         <React.StrictMode>
-            <AuthProvider>
+            <AuthProvider
+                authType={"cookie"}
+                authName={"token"}
+                cookieDomain={window.location.hostname}
+                cookieSecure={false}
+            >
                 <App />
             </AuthProvider>
         </React.StrictMode>
