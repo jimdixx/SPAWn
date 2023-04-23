@@ -39,7 +39,7 @@ const App = () => {
 
                 <Route path="/logout" Component={Logout}/>
                 <Route path='/login' element={<LoginComponent/>}/>
-
+                <Route path='/signup' element={<Signup />} />
             </Routes>
         </Router>
 
