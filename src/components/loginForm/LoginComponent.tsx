@@ -57,10 +57,6 @@ const LoginComponent = () => {
             {success ? (
                     <Container>
                         <h1 style={{color:"green"}}><u>You are logged in! </u></h1>
-                        <br />
-                        <p>
-                            jdi do prčič. hello world!
-                        </p>
                     </Container>
                 ) : (
                 <section>

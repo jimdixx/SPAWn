@@ -8,7 +8,7 @@ import MainPage from "./pages/MainPage";
 import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
 import LoginComponent from "./components/loginForm/LoginComponent";
-import { PrivateRoute } from './components/helperFunctions/PrivateRoute';
+import {PrivateRoute} from './components/helperFunctions/PrivateRoute';
 import {RequireAuth} from "react-auth-kit";
 //<PrivateRoute component={Detect}/>
 //TODO logout
@@ -21,25 +21,25 @@ const App = () => {
             <NavBar/>
             <Routes>
                 <Route path='/' element={<MainPage/>}/>
-                <Route path='/about' element=
+                <Route path='/about' element={<About/>}/>
+                <Route path="/detect" element=
                     {
-                    <RequireAuth loginPath={"/login"}>
-                        <About/>
-                    </RequireAuth>
-                }
+                        <RequireAuth loginPath={"/login"}>
+                            <Detect/>
+                        </RequireAuth>
+                    }
                 />
-                <Route path="/detect" element={<Detect/>}/>
                 <Route path='/configuration' element=
                     {
                         <RequireAuth loginPath={"/login"}>
                             <Configuration/>
                         </RequireAuth>
-                }
+                    }
                 />
 
                 <Route path="/logout" Component={Logout}/>
                 <Route path='/login' element={<LoginComponent/>}/>
-                <Route path='/signup' element={<Signup />} />
+                <Route path='/signup' element={<Signup/>}/>
             </Routes>
         </Router>
 

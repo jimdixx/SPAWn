@@ -7,7 +7,7 @@ function Logout() {
     const signOut = useSignOut();
     useEffect(() => {
         const userName: string = retrieveUsernameFromStorage();
-        if(isAuthenticated() && userName != null){
+        if(isAuthenticated()){
             //no reason logout should ever fail for valid user that is logged in, therefore we don´t
             //have to wait for server response
             //if we ever have to wait for response, then this all needs to be moved to component
