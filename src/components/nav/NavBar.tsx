@@ -21,15 +21,15 @@ const NavBar = () => {
         setAuthenticated(isAuthed);
     })
     return (
-        <Navbar bg="light" expand="lg">
+        <Navbar expand="lg" className="bg-opacity-75 bg-dark text-white">
             <Container fluid>
-                <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
+                <Navbar.Brand href="/"> <i className={"fas fa-chevron-left"} />{" SPADe Software "} <i className={"fas fa-chevron-right"} /></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                 <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        <Nav.Link href="/detect">Detect</Nav.Link>
-                        <Nav.Link href="/configuration">Configuration</Nav.Link>
-                        <Nav.Link href="/about">About</Nav.Link>
+                    <Nav className="me-auto text-white">
+                        <Nav.Link href="/detect" className="text-white">Detect</Nav.Link>
+                        <Nav.Link href="/configuration" className="text-white">Configuration</Nav.Link>
+                        <Nav.Link href="/about" className="text-white">About</Nav.Link>
                     </Nav>
                     {
                         isAuthenticated?

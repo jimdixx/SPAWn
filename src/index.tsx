@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
 import 'bootstrap/dist/css/bootstrap.css';
 //third party library that manages authentication
 import {AuthProvider} from "react-auth-kit"
+
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 const initializeApp = async() =>{
     //[JT]

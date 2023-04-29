@@ -10,6 +10,8 @@ import Logout from "./pages/Logout";
 import LoginComponent from "./components/loginForm/LoginComponent";
 import {PrivateRoute} from './components/helperFunctions/PrivateRoute';
 import {RequireAuth} from "react-auth-kit";
+import Footer from "./components/footer/CustomFooter";
+import Login from "./pages/Login";
 //<PrivateRoute component={Detect}/>
 //TODO logout
 const App = () => {
@@ -38,12 +40,11 @@ const App = () => {
                 />
 
                 <Route path="/logout" Component={Logout}/>
-                <Route path='/login' element={<LoginComponent/>}/>
+                <Route path='/login' element={<Login/>}/>
                 <Route path='/signup' element={<Signup/>}/>
             </Routes>
+            <Footer />
         </Router>
-
-
     );
 };
 

@@ -4,7 +4,7 @@ import { Alert, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import "./styles/about/style.css"
-import {withAuthHeader} from "react-auth-kit";
+import {axiosPrivate} from "../api/axios";
 
 interface AppData {
     version: string;
@@ -20,7 +20,7 @@ const About = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get<AppData[]>(
+                const response = await axiosPrivate().get<AppData[]>(
                     'http://localhost:8080/v2/app/metadata/about'
                 );
                 setAppDataList(response.data.reverse());

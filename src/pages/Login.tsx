@@ -7,7 +7,6 @@ const Login = () => {
     return (
         <Container>
             <LoginComponent />
-            <p>Not a member yet? <a href="/signup">Sign up now!</a> </p>
         </Container>
     );
 
