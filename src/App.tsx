@@ -39,7 +39,7 @@ const App = () => {
                     }
                 />
 
-                <Route path="/logout" Component={Logout}/>
+                <Route path="/logout" element={<Logout />}/>
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/signup' element={<Signup/>}/>
             </Routes>
