@@ -42,9 +42,13 @@ const App = () => {
                     }
                 />
 
-                <Route path="/logout" element={<Logout />}/>
+                <Route path="/logout" element={<Logout redirect={true}/>}/>
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/signup' element={<Signup/>}/>
+
+                <Route path='/403' element={<Forbidden />}/>
+                <Route path='/404' element={<NotFound />}/>
+                <Route path='/500' element={<InternalServerError />}/>
             </Routes>
             <Footer />
         </Router>

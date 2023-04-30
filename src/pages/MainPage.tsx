@@ -97,7 +97,6 @@ const MainPage = () => {
                                     If you're interested in learning more about the research behind SPADe, you can check
                                     out these published works:
                                 </Card.Text>
-                                <Card.Text>
                                     <ul>
                                         <li>
                                             <a href="https://doi.org/10.1109/SEAA.2016.37">ALM Tool Data Usage in Software Process Metamodeling</a> - P. Pícha and P. Brada, 2016 42th Euromicro Conference on Software Engineering and Advanced Applications (SEAA)
@@ -112,7 +111,6 @@ const MainPage = () => {
                                             <a href="https://doi.org/10.1145/3361149">Software process anti-pattern detection in project data</a> - P. Picha and P. Brada, 2019 24th European Conference on Pattern Languages of Programs (EuroPLop)
                                         </li>
                                     </ul>
-                                </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>

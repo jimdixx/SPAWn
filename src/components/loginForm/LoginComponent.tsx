@@ -4,6 +4,7 @@ import {Alert, Button, Col, Container, Form} from "react-bootstrap";
 import {login} from "../../api/APILogin";
 import {useSignIn} from "react-auth-kit";
 import {saveUserInfoToStorage} from "../../context/LocalStorageManager";
+import Logout from "../../pages/Logout";
 
 const LoginComponent = () => {
     const userRef = useRef<any>();
@@ -14,10 +15,10 @@ const LoginComponent = () => {
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
 
-    //TODO nekdy hazi uplne mega spiralu erroru
-    useEffect(() => {
-        userRef.current.focus();
-    }, []);
+    // useEffect(() => {
+    //     // in case user gets 400, 401, ... from spade so the token is not valid anymore.
+    //     Logout(false);
+    // }, []);
 
     useEffect(() => {
         setErrMsg('');

@@ -18,7 +18,10 @@ const About = () => {
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+
         const fetchData = async () => {
 
                 const response: apiResponse  = await ApiCaller({},"http://localhost:8080/v2/app/metadata/about",HTTP_METHOD.GET);
@@ -36,6 +39,7 @@ const About = () => {
 
         };
         fetchData();
+        setLoading(false);
     }, []);
 
     return (
