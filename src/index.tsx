@@ -15,7 +15,7 @@ const initializeApp = async() =>{
     //auth type can be cookie or localstorage
     //cookie is safer but localstorage can be used aswell
     root.render(
-        <React.StrictMode>
+        <React.Suspense>
             <AuthProvider
                 authType={"cookie"}
                 authName={"token"}
@@ -24,7 +24,7 @@ const initializeApp = async() =>{
             >
                 <App />
             </AuthProvider>
-        </React.StrictMode>
+        </React.Suspense>
     );
 }
 

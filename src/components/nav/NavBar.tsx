@@ -19,7 +19,7 @@ const NavBar = () => {
     useEffect(()=>{
         const isAuthed = authenticated();
         setAuthenticated(isAuthed);
-    })
+    },[authenticated])
     return (
         <Navbar expand="lg" className="bg-opacity-75 bg-dark text-white">
             <Container fluid>

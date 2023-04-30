@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Alert, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import React, {useEffect, useState} from 'react';
+import {Alert, Col, Container, Row, Spinner} from 'react-bootstrap';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faEnvelope} from '@fortawesome/free-solid-svg-icons';
 import "./styles/about/style.css"
 import {axiosPrivate} from "../api/axios";
+import ApiCaller, {apiResponse, HTTP_METHOD} from "../components/api/ApiCaller";
+import {useNavigate} from "react-router-dom";
 
 interface AppData {
     version: string;
@@ -19,16 +20,20 @@ const About = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const response = await axiosPrivate().get<AppData[]>(
+
+                const response: apiResponse  = await ApiCaller({},"http://localhost:8080/v2/app/metadata/about",HTTP_METHOD.GET);
+                /*const response = await axiosPrivate().get<AppData[]>(
                     'http://localhost:8080/v2/app/metadata/about'
-                );
-                setAppDataList(response.data.reverse());
-                setLoading(false)
-            } catch (error: any) {
-                setError(error.message);
-                setLoading(false);
-            }
+                );*/
+
+                if(response.redirect){
+                    navigate(response.redirect);
+                } else {
+                    const data = response.response.data as []
+                    setAppDataList(data.reverse());
+                    setLoading(false)
+                }
+
         };
         fetchData();
     }, []);

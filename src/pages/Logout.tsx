@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import {useSignOut,useIsAuthenticated} from "react-auth-kit";
 import {logoutUser} from "../api/APILogout";
 import {retrieveUsernameFromStorage,invalidateLocalStorage} from "../context/LocalStorageManager";
-function Logout() {
+function Logout(props: {redirect: boolean}) {
     const isAuthenticated = useIsAuthenticated();
     const signOut = useSignOut();
-    useEffect(() => {
+
+    useEffect(()=>{
         const userName: string = retrieveUsernameFromStorage();
         if(isAuthenticated()){
             //no reason logout should ever fail for valid user that is logged in, therefore we don´t
@@ -16,10 +17,10 @@ function Logout() {
             signOut();
         }
         //ref back to root page
-        window.location.href = '/';
+        if(props.redirect)
+            window.location.href = '/';
+    },[])
 
-    });
-    //return null as a "component" so the browser router can work
     return null;
 }
 

@@ -35,7 +35,7 @@ const LoginComponent = () => {
         if (statusCode < 400) {
             signIn({
                 token: accessToken,
-                expiresIn: 3600,
+                expiresIn: 10,
                 tokenType: "Bearer",
                 authState: {userName: user}
             });
