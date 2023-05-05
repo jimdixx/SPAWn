@@ -34,5 +34,13 @@ const fetchConfigurations = async (username:string): Promise<{message:string; st
     return {message,status,configurations};
 }
 
+export const fetchConfigurationNames = async (username:string): Promise<API_RESPONSE> => {
+    const data:{} = JSON.stringify({name:username});
+    const response: API_RESPONSE = await ApiCaller(data, CONFIGURATION_NAME_URL, HTTP_METHOD.POST);
+    return response;
+}
+
+
+
 
 

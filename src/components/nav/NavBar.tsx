@@ -19,8 +19,44 @@ const NavBar = () => {
     const [configurationNames,setNames] = useState<string []>([]);
     const [userName, setUserName] = useState("");
     const authenticated = useIsAuthenticated();
+    const navigate = useNavigate();
+    const createOptions = () => {
+        const options = configurationNames.map((configurationName,index) => {
+            return <option key={index} value={configurationName}>{configurationName}</option>
+        });
+        return (
+        <Form.Select aria-label="Default select example" onChange={(event) => {
+            {
+                setSelectedConfiguration(event.target.value);
+                saveConfigurationNameToLocalstorage(event.target.value);
+            }
+        }} value={selectedConfiguration} >
+            {options}
+        </Form.Select>
+        );
 
-    useEffect(()=>{
+    }
+
+    // fetch configuration names from server to be rendered in select
+    const fetchConfigurationName = async () => {
+        const response = await fetchConfigurationNames(userName);
+        if(response.redirect) {
+            navigate(response.redirect);
+        }
+        else {
+            return response.response;
+        }
+    }
+
+    //read username from localstorage - only invoked when username is authed.
+    const fetchUserName = () =>{
+        const userName = retrieveUsernameFromStorage();
+        setUserName(userName);
+    }
+
+    const {data, status} = useQuery("configuration_names", fetchConfigurationName,{ refetchOnWindowFocus: false,enabled:!!userName});
+
+    useEffect(() => {
         const isAuthed = authenticated();
         setAuthenticated(isAuthed);
         if(isAuthed)
