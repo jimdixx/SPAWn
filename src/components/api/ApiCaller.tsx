@@ -41,7 +41,7 @@ function handleResponse(result: AxiosResponse): boolean {
     return false;
 }
 
-export interface apiResponse {
+export interface API_RESPONSE {
     authenticated: boolean,
     redirect?: string,
     response: {
@@ -50,7 +50,7 @@ export interface apiResponse {
     }
 }
 
-const doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<apiResponse> => {
+const doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<API_RESPONSE> => {
 
         let response;
         try {
