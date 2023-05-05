@@ -1,0 +1,41 @@
+table a {
+    text-decoration: none !important;
+}
+
+table a:hover {
+    text-decoration: underline !important;
+}
+
+table td {
+    font-size: 1.3em !important;
+}
+
+.custom-td-style tr:hover td {
+    background-color: white !important;
+    border-bottom: 2px solid black !important;
+}
+
+.custom-td-style {
+    font-size: 1.2em !important;
+    font-style: italic !important;
+    border-bottom: 2px solid black !important;
+}
+
+.custom-td-style-ext tr:hover td {
+    background-color: white !important;
+    border-bottom: 2px solid black !important;
+}
+
+.custom-td-style-ext {
+    text-align: center !important;
+    border-bottom: 2px solid black !important;
+}
+
+.no-hover:hover {
+    background-color: white !important;
+}
+
+
+.analyze-button-container {
+    margin: 40px 50% 40px;
+}
