@@ -8,14 +8,15 @@ import 'bootstrap/dist/css/bootstrap.css';
 import {AuthProvider} from "react-auth-kit"
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
-
+import { QueryClient, QueryClientProvider } from 'react-query'
+const queryClient = new QueryClient();
 const initializeApp = async() =>{
     //[JT]
     //auth type can be cookie or localstorage
     //cookie is safer but localstorage can be used aswell
     root.render(
         <React.Suspense>
+            <QueryClientProvider client={queryClient}>
             <AuthProvider
                 authType={"cookie"}
                 authName={"token"}
@@ -24,6 +25,7 @@ const initializeApp = async() =>{
             >
                 <App />
             </AuthProvider>
+            </QueryClientProvider>
         </React.Suspense>
     );
 }

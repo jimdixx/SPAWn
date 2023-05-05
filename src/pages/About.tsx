@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEnvelope} from '@fortawesome/free-solid-svg-icons';
 import "./styles/about/style.css"
 import {axiosPrivate} from "../api/axios";
-import ApiCaller, {apiResponse, HTTP_METHOD} from "../components/api/ApiCaller";
+import ApiCaller, {API_RESPONSE, HTTP_METHOD} from "../components/api/ApiCaller";
 import {useNavigate} from "react-router-dom";
 
 interface AppData {
@@ -24,7 +24,7 @@ const About = () => {
 
         const fetchData = async () => {
 
-                const response: apiResponse  = await ApiCaller({},"http://localhost:8080/v2/app/metadata/about",HTTP_METHOD.GET);
+                const response: API_RESPONSE  = await ApiCaller({},"http://localhost:8080/v2/app/metadata/about",HTTP_METHOD.GET);
                 /*const response = await axiosPrivate().get<AppData[]>(
                     'http://localhost:8080/v2/app/metadata/about'
                 );*/
