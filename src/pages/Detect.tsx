@@ -7,6 +7,7 @@ import {Button} from "react-bootstrap";
 import {getConfigurationNameFromLocalstorage} from "../components/helperFunctions/ConfigurationSelectEvent";
 import {retrieveUsernameFromStorage} from "../context/LocalStorageManager";
 import {sendProjectsForAnalysation} from "../api/APIDetect";
+
 interface Project {
     id:number,
     name: string,
@@ -31,7 +32,7 @@ interface ResponseObject {
 }
 
 const Detect = () => {
-    const [query, setQuery] = useState<ResponseObject>({projects:[],antiPatterns:[]});
+    const[query, setQuery] = useState<ResponseObject>({projects:[],antiPatterns:[]});
     const[selectedProjects,setSelectedProjects] = useState<number[]>([]);
     const[selectedAntiPatterns,setSelectedAntiPatterns] = useState<number[]>([]);
     const[projectCount,setProjectCount] = useState<number>(0);
@@ -133,21 +134,21 @@ const Detect = () => {
         selectedBox[id] === 1 ? selectedBox[id] = 0 : selectedBox[id] = 1;
     }
 
-    /*const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, elementId: string, projects: boolean) => {
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, elementId: string, projects: boolean) => {
         const boxId : number = +e.target.value; //retype value to number
 
         const checkbox:HTMLInputElement | null = document.getElementById(elementId) as HTMLInputElement;
 
         if (projects) {
-            setChecked(boxId, selectedProjects, setSelectedProjects);
+            setChecked(boxId, selectedProjects);
             setQuickSelectState(checkbox, selectedProjects,projectCount);
         } else {
-            setChecked(boxId, selectedAntiPatterns, setSelectedAntiPatterns);
+            setChecked(boxId, selectedAntiPatterns);
             setQuickSelectState(checkbox, selectedAntiPatterns,patternCount);
         }
 
-    }*/
-
+    }
+/*
      const handleProjectCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
          // code to handle project checkbox change
          const projectId : number = +e.target.value; //retype value to number
@@ -155,39 +156,28 @@ const Detect = () => {
 
          const checkbox:HTMLInputElement | null = document.getElementById("select_all_projects") as HTMLInputElement;
 
-         setQuickSelectState(checkbox, selectedProjects,projectCount);
+         setQuickSelectState(checkbox, selectedProjects, projectCount);
      };
 
      const handleAntiPatternCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
          // code to handle anti-pattern checkbox change
          const antiPatternId : number = +e.target.value; //retype value to number
          setChecked(antiPatternId, selectedAntiPatterns);
+
          const checkbox:HTMLInputElement | null = document.getElementById("select_all_anti_patterns") as HTMLInputElement;
-         setQuickSelectState(checkbox, selectedAntiPatterns,patternCount);
+
+         setQuickSelectState(checkbox, selectedAntiPatterns, patternCount);
      };
-
+*/
     const handleQuickSelectAll = (e: React.ChangeEvent<HTMLInputElement>, projects:boolean) => {
+        projects?
+            flipCheckBoxes("select_all_projects","project_", selectedProjects)
+            :
+            flipCheckBoxes("select_all_anti_patterns","antiPattern_", selectedAntiPatterns);
 
-        //flip all project checkboxes
-        if(projects) {
-            const parentBox: any = document.getElementById("select_all_projects");
-            let state : boolean = parentBox.checked;
-            if(parentBox.indeterminate)
-                state = true;
-            const box:any = document.querySelectorAll('*[id^="project_"]');
-            setBoxesState(box,state);
-            return;
-        }
-        //flip all antipattern checkboxes
-        const parentBox: any = document.getElementById("select_all_anti_patterns");
-        const state : boolean = parentBox.indeterminate || parentBox.checked;
-
-        const box:any = document.querySelectorAll('*[id^="anti-pattern"]');
-        setBoxesState(box,state);
-        //quick select all projects
     }
 
-    const setBoxesState = (boxes:any,value:boolean) => {
+    const setBoxesState = (boxes:any, value:boolean, field:number[]) => {
         let i;
         for (i = 0; i < boxes.length; i++) {
             boxes[i].checked = value;
@@ -208,15 +198,28 @@ const Detect = () => {
         const selectedAntiPatternIds: number[] = [];
         const userName = retrieveUsernameFromStorage();
         //push all selected projects
-        for(let i = 0; i < selectedProjects.length;i++) {
-            if(selectedProjects[i] == 1)
+        for(let i = 0; i < selectedProjects.length; i++) {
+            if(selectedProjects[i] == 1) {
                 selectedProjectIds.push(i);
+            }
         }
+        //no project are checked
+        if (selectedProjectIds.length == 0) {
+            console.log("zadne projekty");
+        }
+
         //push all selected antipatterns
-        for(let i = 0; i < selectedAntiPatterns.length;i++) {
-            if(selectedAntiPatterns[i] === 1)
+        for(let i = 0; i < selectedAntiPatterns.length; i++) {
+            if(selectedAntiPatterns[i] === 1) {
                 selectedAntiPatternIds.push(i);
+            }
         }
+
+        //no anti-patterns are checked
+        if (selectedAntiPatternIds.length == 0) {
+            console.log("zadne paterny");
+        }
+
         const body = {
             "configurationId" : configurationId,
             "userName":userName,
@@ -224,8 +227,13 @@ const Detect = () => {
             "selectedAntipatterns":selectedAntiPatternIds
         }
 
-        const response = sendProjectsForAnalysation(body);
-        response.then((data)=>{console.log(data.response.data)});
+        const response = await sendProjectsForAnalysation(body);
+        if(response.redirect) {
+            navigate(response.redirect);
+        } else {
+            console.log(response.response.data);
+        }
+
 
     };
 
@@ -256,7 +264,8 @@ const Detect = () => {
                                             type="checkbox"
                                             className="form-check-input add-label"
                                             id="select_all_projects"
-                                            onChange={(event) => { handleQuickSelectAll(event, true);
+                                            onChange={(event) => {
+                                                handleQuickSelectAll(event, true);
                                             }}
                                         />
                                     </td>
@@ -283,7 +292,9 @@ const Detect = () => {
                                                 value={project.id}
                                                 id={`project_${
                                                     project.id}`}
-                                                onChange={(event)=>{handleProjectCheckboxChange(event);}}
+                                                onChange={(event)=> {
+                                                    handleCheckboxChange(event, "select_all_projects", true);
+                                                }}
                                             />
                                         </td>
                                     </tr>
@@ -298,7 +309,7 @@ const Detect = () => {
                         )
 
                         }
-                        {/* ./Table for selecting projects */}
+
                     </div>
 
                     <div className="col">
@@ -338,7 +349,10 @@ const Detect = () => {
 
                                                 value={antiPattern.id}
                                                 id={`antiPattern_${antiPattern.id}`}
-                                                onChange={(event)=>{handleAntiPatternCheckboxChange(event);}}
+                                                onChange={(event)=>{
+
+                                                    handleCheckboxChange(event, "select_all_anti_patterns", false);
+                                                }}
                                             />
                                         </td>
                                    </tr>
