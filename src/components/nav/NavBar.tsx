@@ -17,12 +17,13 @@ const NavBar = () => {
     const [isAuthenticated, setAuthenticated] = useState(false);
     const [selectedConfiguration, setSelectedConfiguration] = useState<string|undefined>(getConfigurationNameFromLocalstorage());
     const [configurationNames,setNames] = useState<string []>([]);
+    const [configurationIds,setIds] = useState<string []>([]);
     const [userName, setUserName] = useState("");
     const authenticated = useIsAuthenticated();
     const navigate = useNavigate();
     const createOptions = () => {
         const options = configurationNames.map((configurationName,index) => {
-            return <option key={index} value={configurationName}>{configurationName}</option>
+            return <option key={index} value={configurationIds[index]}>{configurationName}</option>
         });
         return (
         <Form.Select aria-label="Default select example" onChange={(event) => {
@@ -70,9 +71,11 @@ const NavBar = () => {
         if(!data) {
             return;
         }
-        const responseData = data.data as {message:string, configuration_names:string[]};
+        const responseData = data.data as {message:string, configuration_names:string[],configuration_ids:string[]};
         const configurationNames:string[] = responseData.configuration_names;
+        const configurationIds:string[] = responseData.configuration_ids;
         setNames(configurationNames);
+        setIds(configurationIds);
     },[data]);
 
 
