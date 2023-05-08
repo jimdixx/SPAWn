@@ -13,10 +13,7 @@ interface Project {
     name: string,
     description:string
 }
-/*
-interface Thresholds {
-    any
-}*/
+
 
 interface Antipattern {
     id:number,
@@ -41,45 +38,7 @@ const Detect = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-/*
 
-    const projectCheckboxesAllIndeterminate = (checkbox:any, selectPattern:any) => {
-
-        let globalCheckboxPattern = "";
-        let checkboxPattern = "";
-
-        if (selectPattern == 0) {
-            globalCheckboxPattern = '*[id^="select_all_projects"]';
-            checkboxPattern = '*[id^="project_"]';
-        } else {
-            globalCheckboxPattern = '*[id^="select_all_anti_patterns"]';
-            checkboxPattern = '*[id^="anti-pattern_"]';
-        }
-
-        let projectCheckboxes:any = document.querySelectorAll(checkboxPattern);
-        let checkedCounter = 0;
-
-        for (let i = 0; i < projectCheckboxes.length; i++) {
-            if(projectCheckboxes[i].checked) {
-                //setCookie(selectPattern);
-                checkedCounter++;
-            }
-        }
-        let projectSelectAllCheckbox:any = document.querySelector(globalCheckboxPattern);
-
-        if (checkedCounter <= 0) {
-            projectSelectAllCheckbox.indeterminate = false;
-            projectSelectAllCheckbox.checked = false;
-        } else if (checkedCounter < projectCheckboxes.length) {
-            projectSelectAllCheckbox.indeterminate = true;
-        } else {
-            projectSelectAllCheckbox.indeterminate = false;
-            projectSelectAllCheckbox.checked = true;
-        }
-
-    }
-
-*/
 
     const fetchProjectsAndAntipatterns = async () => {
         const response: API_RESPONSE  = await ApiCaller({},"http://localhost:8080/v2/detect/list", HTTP_METHOD.GET);
@@ -126,7 +85,6 @@ const Detect = () => {
         checkBox.indeterminate = false
         checkBox.checked = false;
 
-        //checkBox.removeAttribute("checked");
 
     }
 
@@ -176,15 +134,26 @@ const Detect = () => {
             flipCheckBoxes("select_all_anti_patterns","antiPattern_", selectedAntiPatterns);
 
     }
+    const flipCheckBoxes = (elementId:string, boxesId:string, field:number[]) => {
+        const parentBox: any = document.getElementById(elementId);
+        const boxes:any = document.querySelectorAll(`*[id^=${boxesId}]`);
+        let state : boolean = parentBox.checked;
+        if(parentBox.indeterminate)
+            state = true;
+        // if(parentBox.indeterminate || !parentBox.checked)
+        //state = true;
+        setBoxesState(boxes, state, field);
+    }
 
     const setBoxesState = (boxes:any, value:boolean, field:number[]) => {
         let i;
         for (i = 0; i < boxes.length; i++) {
+            field[+boxes[i].value] = Number(value);
             boxes[i].checked = value;
         }
     }
 
-    const handleSubmit = (e:FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const configurationId:string|undefined = getConfigurationNameFromLocalstorage();
         if(!configurationId){

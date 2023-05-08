@@ -22,7 +22,12 @@ const NavBar = () => {
     const authenticated = useIsAuthenticated();
     const navigate = useNavigate();
     const createOptions = () => {
+        let configurationId:string|undefined = getConfigurationNameFromLocalstorage();
         const options = configurationNames.map((configurationName,index) => {
+            if(!configurationId){
+                saveConfigurationNameToLocalstorage(configurationIds[index]);
+                configurationId = configurationIds[index];
+            }
             return <option key={index} value={configurationIds[index]}>{configurationName}</option>
         });
         return (
@@ -95,7 +100,7 @@ const NavBar = () => {
                     {
                         isAuthenticated?
                                 <>
-                                    {configurationNames.length && createOptions()}
+                                    {configurationNames.length > 0 && createOptions()}
                                 <span>{userName}</span>
                                 <Nav.Link href="/logout">Logout</Nav.Link>
                                 </>
