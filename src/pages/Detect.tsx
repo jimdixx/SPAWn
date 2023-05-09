@@ -3,7 +3,7 @@ import ApiCaller, {API_RESPONSE, HTTP_METHOD} from "../components/api/ApiCaller"
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "react-query";
 import "./styles/detect/style.css";
-import {Button} from "react-bootstrap";
+import {Alert, Button, Spinner} from "react-bootstrap";
 import {getConfigurationNameFromLocalstorage} from "../components/helperFunctions/ConfigurationSelectEvent";
 import {retrieveUsernameFromStorage} from "../context/LocalStorageManager";
 import {sendProjectsForAnalysation} from "../api/APIDetect";
@@ -155,6 +155,8 @@ const Detect = () => {
 
     const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoading(true);
+        setErrorMessage("");
         const configurationId:string|undefined = getConfigurationNameFromLocalstorage();
         if(!configurationId){
             //todo borec nema selected zadnou konfiguraci somehow nebo si spis promazal local storage
@@ -172,10 +174,14 @@ const Detect = () => {
                 selectedProjectIds.push(i);
             }
         }
+
         //no project are checked
-        if (selectedProjectIds.length == 0) {
-            console.log("zadne projekty");
-        }
+        // if (selectedProjectIds.length == 0) {
+        //     console.log("zadne projekty");
+        //     setErrorMessage("No projects were selected!");
+        //     setLoading(false);
+        //     return;
+        // }
 
         //push all selected antipatterns
         for(let i = 0; i < selectedAntiPatterns.length; i++) {
@@ -185,9 +191,12 @@ const Detect = () => {
         }
 
         //no anti-patterns are checked
-        if (selectedAntiPatternIds.length == 0) {
-            console.log("zadne paterny");
-        }
+        // if (selectedAntiPatternIds.length == 0) {
+        //     console.log("zadne paterny");
+        //     setErrorMessage("No anti-paterns were selected!");
+        //     setLoading(false);
+        //     return;
+        // }
 
         const body = {
             "configurationId" : configurationId,
@@ -197,13 +206,19 @@ const Detect = () => {
         }
 
         const response = await sendProjectsForAnalysation(body);
+        console.log(response);
+
         if(response.redirect) {
             navigate(response.redirect);
+        } else if(response.response.status === 400) {
+            const err = response.response.data as {message:string};
+            setErrorMessage(err.message);
         } else {
             console.log(response.response.data);
+            navigate("/results", {state:{data:response.response.data}});
         }
 
-
+        setLoading(false);
     };
 
     return (
@@ -276,11 +291,8 @@ const Detect = () => {
                                 There are no projects to analyze!
                             </div> : <h1>loading</h1>
                         )
-
                         }
-
                     </div>
-
                     <div className="col">
                         {/* Table for selecting anti patterns */}
                         {query.antiPatterns.length > 0 ? (
@@ -333,9 +345,26 @@ const Detect = () => {
                     </div>
                 </div>
             </div>
-            <div className={"analyze-button-container"}>
-                <Button className={"btn btn-primary btn-lg btn-block"} type={"submit"}>Detect</Button>
-            </div>
+            {
+                errorMessage && (
+                    <Alert variant="danger" className="my-3">
+                        {errorMessage}
+                    </Alert>
+                )
+            }
+            {
+                loading ? (
+                    <div className={"text-center"}>
+                        <Spinner animation={"border"} variant={"primary"}/>
+                    </div>
+                )
+                :
+                (
+                    <div className={"text-center"}>
+                        <Button className={"btn btn-primary btn-lg btn-block"} type={"submit"}>Detect</Button>
+                    </div>
+                )
+            }
         </form>
     );
 };

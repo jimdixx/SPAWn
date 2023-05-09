@@ -12,6 +12,7 @@ import {PrivateRoute} from './components/helperFunctions/PrivateRoute';
 import {RequireAuth} from "react-auth-kit";
 import Footer from "./components/footer/CustomFooter";
 import Login from "./pages/Login";
+import Results from "./pages/Results";
 import NotFound from "./pages/error_pages/404";
 import Forbidden from "./pages/error_pages/403";
 import InternalServerError from "./pages/error_pages/500";
@@ -31,6 +32,13 @@ const App = () => {
                     {
                         <RequireAuth loginPath={"/login"}>
                             <Detect/>
+                        </RequireAuth>
+                    }
+                />
+                <Route path="/results" element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Results />
                         </RequireAuth>
                     }
                 />

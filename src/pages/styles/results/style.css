@@ -1,0 +1,20 @@
+
+table th a {
+    text-decoration: none !important;
+    color: black !important;
+}
+
+table th a:hover {
+    text-decoration: underline !important;
+    color: black !important;
+}
+
+table td a {
+    text-decoration: none !important;
+    color: black !important;
+}
+
+table td a:hover {
+    text-decoration: underline !important;
+    color: black !important;
+}
