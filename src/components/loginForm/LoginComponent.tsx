@@ -1,10 +1,12 @@
-import React, {useRef, useState, useEffect, useContext} from 'react';
-import {Link} from "react-router-dom";
+import React, {useRef, useState, useEffect} from 'react';
+import {Link, useNavigate} from "react-router-dom";
 import {Alert, Button, Col, Container, Form} from "react-bootstrap";
 import {login} from "../../api/APILogin";
 import {useSignIn} from "react-auth-kit";
 import {saveUserInfoToStorage} from "../../context/LocalStorageManager";
 import Logout from "../../pages/Logout";
+import jwt, {JwtPayload} from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 const LoginComponent = () => {
     const userRef = useRef<any>();
@@ -14,7 +16,7 @@ const LoginComponent = () => {
     const [pwd, setPwd] = useState('');
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
-
+    const navigate = useNavigate();
     // useEffect(() => {
     //     // in case user gets 400, 401, ... from spade so the token is not valid anymore.
     //     Logout(false);
@@ -32,11 +34,19 @@ const LoginComponent = () => {
         const responseWrapper: { message: string; status: number; token: string } = await login(user, pwd);
         const accessToken: string = responseWrapper.token;
         const statusCode: number = responseWrapper.status;
+
         //login went well
         if (statusCode < 400) {
+
+            const token = jwt<JwtPayload>(accessToken);
+            if (!token.exp) {
+                navigate("/500");
+                return;
+            }
+
             signIn({
                 token: accessToken,
-                expiresIn: 10,
+                expiresIn: token.exp,
                 tokenType: "Bearer",
                 authState: {userName: user}
             });
@@ -49,6 +59,7 @@ const LoginComponent = () => {
             return;
         }
         //something went terribly wrong
+        console.log("Jsem tady");
         setErrMsg(responseWrapper.message);
         errRef.current.focus();
     }

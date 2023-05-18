@@ -8,6 +8,9 @@ import {fetchConfigurationNames} from "../../api/APIConfiguration";
 import {useQuery} from "react-query";
 import Form from 'react-bootstrap/Form';
 import {useNavigate} from "react-router-dom";
+import {Spinner} from 'react-bootstrap';
+import "./style.css"
+
 import {
     getConfigurationNameFromLocalstorage,
     saveConfigurationNameToLocalstorage
@@ -19,6 +22,8 @@ const NavBar = () => {
     const [configurationNames,setNames] = useState<string []>([]);
     const [configurationIds,setIds] = useState<string []>([]);
     const [userName, setUserName] = useState("");
+    const [loadingConfigurations, setLoadingConfigurations] = useState(true);
+    const [loadingUserInfo, setLoadingUserInfo] = useState(true);
     const authenticated = useIsAuthenticated();
     const navigate = useNavigate();
     const createOptions = () => {
@@ -31,14 +36,20 @@ const NavBar = () => {
             return <option key={index} value={configurationIds[index]}>{configurationName}</option>
         });
         return (
-        <Form.Select aria-label="Default select example" onChange={(event) => {
-            {
-                setSelectedConfiguration(event.target.value);
-                saveConfigurationNameToLocalstorage(event.target.value);
-            }
-        }} value={selectedConfiguration} >
-            {options}
-        </Form.Select>
+            <div className="d-flex align-items-center">
+                <Form.Select
+                    aria-label="Default select example"
+                    onChange={(event) => {
+                        setSelectedConfiguration(event.target.value);
+                        saveConfigurationNameToLocalstorage(event.target.value);
+                    }}
+                    value={selectedConfiguration}
+                    className="ms-2 custom-select"
+                    style={{ maxWidth: "100%" }}
+                >
+                    {options}
+                </Form.Select>
+            </div>
         );
 
     }
@@ -50,6 +61,7 @@ const NavBar = () => {
             navigate(response.redirect);
         }
         else {
+            setLoadingConfigurations(false);
             return response.response;
         }
     }
@@ -57,6 +69,7 @@ const NavBar = () => {
     //read username from localstorage - only invoked when username is authed.
     const fetchUserName = () =>{
         const userName = retrieveUsernameFromStorage();
+        setLoadingUserInfo(false);
         setUserName(userName);
     }
 
@@ -68,7 +81,7 @@ const NavBar = () => {
         if(isAuthed)
             fetchUserName();
         else setUserName("");
-    },[authenticated, isAuthenticated])
+    },[isAuthenticated, authenticated])
 
 
     useEffect(() => {
@@ -100,9 +113,16 @@ const NavBar = () => {
                     {
                         isAuthenticated?
                                 <>
+                                    {loadingConfigurations &&
+                                        <div className="d-flex justify-content-center align-items-center">
+                                            <Spinner animation="border" variant="primary" />
+                                        </div>
+                                    }
                                     {configurationNames.length > 0 && createOptions()}
-                                <span>{userName}</span>
-                                <Nav.Link href="/logout">Logout</Nav.Link>
+                                        <span style={{marginRight: "1em", marginLeft: "1em"}}>
+                                            <i className={"fa fa-user"} style={{color: "red"}}/> {userName}
+                                        </span>
+                                        <Nav.Link href="/logout"><i className={"fa fa-sign-out"} style={{color: "red"}}/> Logout</Nav.Link>
                                 </>
                             :
                             <Nav.Link href="/login">Sign in</Nav.Link>
