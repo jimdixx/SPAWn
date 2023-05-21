@@ -63,7 +63,6 @@ const LoginComponent = () => {
             return;
         }
         //something went terribly wrong
-        console.log("Jsem tady");
         setErrMsg(responseWrapper.message);
         errRef.current.focus();
     }

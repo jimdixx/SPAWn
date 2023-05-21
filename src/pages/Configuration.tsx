@@ -20,14 +20,6 @@ const Configuration = () => {
     const {data, status} = useQuery("configurations",fetchConfiguration,{ refetchOnWindowFocus: false});
 
 
-    /*
-    //fetch configuration data from server
-    useEffect(()=>{
-        //const fetchData
-
-    },[])
-    */
-
     return (
         <div>
             {status === "error" && <p>error</p>}

@@ -27,6 +27,7 @@ const About = () => {
 
         if(response.redirect){
             navigate(response.redirect);
+            return;
         } else {
             setLoading(false);
             return response.response.data as AppData[];

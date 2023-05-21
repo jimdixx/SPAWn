@@ -45,6 +45,7 @@ const Detect = () => {
 
         if(response.redirect) {
             navigate(response.redirect);
+            return;
         } else {
             const data = response.response.data as ResponseObject;
             setQuery(data);
@@ -210,12 +211,14 @@ const Detect = () => {
 
         if(response.redirect) {
             navigate(response.redirect);
+            return;
         } else if(response.response.status === 400) {
             const err = response.response.data as {message:string};
             setErrorMessage(err.message);
         } else {
             console.log(response.response.data);
             navigate("/results", {state:{data:response.response.data}});
+            return;
         }
 
         setLoading(false);

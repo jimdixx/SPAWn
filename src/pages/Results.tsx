@@ -40,8 +40,8 @@ const Results = () => {
                 <tr>
                     <th scope="id" hidden>Project ID</th>
                     <th scope="col">Project Name</th>
-                    {analyzeResults[0].queryResultItems.map((queryResultItem:QueryResultItems) => (
-                        <th scope="col" >
+                    {analyzeResults[0].queryResultItems.map((queryResultItem:QueryResultItems,index:number) => (
+                        <th scope="col" key={index}>
                             <a href={`/anti-patterns/${queryResultItem.antiPattern.id}`}>
                                 {queryResultItem.antiPattern.printName}
                             </a>
@@ -53,16 +53,16 @@ const Results = () => {
 
                 {/* Result table content */}
                 <tbody>
-                {analyzeResults.map((analyzeResult:any) => (
-                    <tr>
+                {analyzeResults.map((analyzeResult:any,index:number) => (
+                    <tr key={index}>
                         <td hidden>{analyzeResult.project.id}</td>
                         <td>
                             <a href={`/projects/${analyzeResult.project.id}`}>
                                 {analyzeResult.project.name}
                             </a>
                         </td>
-                        {analyzeResult.queryResultItems.map((resultItems:any) => (
-                            <td>
+                        {analyzeResult.queryResultItems.map((resultItems:any,index:number) => (
+                            <td key={index}>
                                 { resultItems.isDetected?
                                     <div>
                                         <a

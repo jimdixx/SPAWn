@@ -59,6 +59,7 @@ const NavBar = () => {
         const response = await fetchConfigurationNames(userName);
         if (response.redirect) {
             navigate(response.redirect);
+            return;
         } else {
             setLoadingConfigurations(false);
             return response.response;
