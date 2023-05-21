@@ -19,7 +19,7 @@ function Logout(props: {redirect: boolean}) {
         //ref back to root page
         if(props.redirect)
             window.location.href = '/';
-    },[])
+    },[isAuthenticated, props.redirect, signOut])
 
     return null;
 }

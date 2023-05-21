@@ -44,9 +44,13 @@ const LoginComponent = () => {
                 return;
             }
 
+            const currTime = Math.floor(Date.now() / 1000);
+            const expTime = token.exp;
+            const expTimeMinutes = Math.floor((expTime - currTime) / 60);
+
             signIn({
                 token: accessToken,
-                expiresIn: token.exp,
+                expiresIn: expTimeMinutes,
                 tokenType: "Bearer",
                 authState: {userName: user}
             });

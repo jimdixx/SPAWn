@@ -18,18 +18,18 @@ import {
 
 const NavBar = () => {
     const [isAuthenticated, setAuthenticated] = useState(false);
-    const [selectedConfiguration, setSelectedConfiguration] = useState<string|undefined>(getConfigurationNameFromLocalstorage());
-    const [configurationNames,setNames] = useState<string []>([]);
-    const [configurationIds,setIds] = useState<string []>([]);
+    const [selectedConfiguration, setSelectedConfiguration] = useState<string | undefined>(getConfigurationNameFromLocalstorage());
+    const [configurationNames, setNames] = useState<string []>([]);
+    const [configurationIds, setIds] = useState<string []>([]);
     const [userName, setUserName] = useState("");
     const [loadingConfigurations, setLoadingConfigurations] = useState(true);
     const [loadingUserInfo, setLoadingUserInfo] = useState(true);
     const authenticated = useIsAuthenticated();
     const navigate = useNavigate();
     const createOptions = () => {
-        let configurationId:string|undefined = getConfigurationNameFromLocalstorage();
-        const options = configurationNames.map((configurationName,index) => {
-            if(!configurationId){
+        let configurationId: string | undefined = getConfigurationNameFromLocalstorage();
+        const options = configurationNames.map((configurationName, index) => {
+            if (!configurationId) {
                 saveConfigurationNameToLocalstorage(configurationIds[index]);
                 configurationId = configurationIds[index];
             }
@@ -45,7 +45,7 @@ const NavBar = () => {
                     }}
                     value={selectedConfiguration}
                     className="ms-2 custom-select"
-                    style={{ maxWidth: "100%" }}
+                    style={{maxWidth: "100%"}}
                 >
                     {options}
                 </Form.Select>
@@ -57,52 +57,63 @@ const NavBar = () => {
     // fetch configuration names from server to be rendered in select
     const fetchConfigurationName = async () => {
         const response = await fetchConfigurationNames(userName);
-        if(response.redirect) {
+        if (response.redirect) {
             navigate(response.redirect);
-        }
-        else {
+        } else {
             setLoadingConfigurations(false);
             return response.response;
         }
     }
 
     //read username from localstorage - only invoked when username is authed.
-    const fetchUserName = () =>{
+    const fetchUserName = () => {
         const userName = retrieveUsernameFromStorage();
         setLoadingUserInfo(false);
         setUserName(userName);
     }
 
-    const {data, status} = useQuery("configuration_names", fetchConfigurationName,{ refetchOnWindowFocus: false,enabled:!!userName});
+    const {data, status} = useQuery("configuration_names", fetchConfigurationName, {
+        refetchOnWindowFocus: false,
+        enabled: !!userName
+    });
 
     useEffect(() => {
         const isAuthed = authenticated();
         setAuthenticated(isAuthed);
-        if(isAuthed)
+
+        if (isAuthed) {
             fetchUserName();
-        else setUserName("");
-    },[isAuthenticated, authenticated])
+        } else {
+            setUserName("");
+            setLoadingConfigurations(false);
+            setLoadingUserInfo(false);
+            setAuthenticated(false);
+            setNames([]);
+        }
+    }, [authenticated, isAuthenticated])
 
 
     useEffect(() => {
         //user is not logged in, do nothing
-        if(!data) {
+        if (!data) {
+            setAuthenticated(false);
+            setLoadingConfigurations(false);
+            setLoadingUserInfo(false);
             return;
         }
-        const responseData = data.data as {message:string, configuration_names:string[],configuration_ids:string[]};
-        const configurationNames:string[] = responseData.configuration_names;
-        const configurationIds:string[] = responseData.configuration_ids;
+        const responseData = data.data as { message: string, configuration_names: string[], configuration_ids: string[] };
+        const configurationNames: string[] = responseData.configuration_names;
+        const configurationIds: string[] = responseData.configuration_ids;
         setNames(configurationNames);
         setIds(configurationIds);
-    },[data]);
-
-
+    }, [data, configurationNames]);
 
 
     return (
         <Navbar expand="lg" className="bg-opacity-75 bg-dark text-white">
             <Container fluid>
-                <Navbar.Brand href="/"> <i className={"fas fa-chevron-left"} />{" SPADe Software "} <i className={"fas fa-chevron-right"} /></Navbar.Brand>
+                <Navbar.Brand href="/"> <i className={"fas fa-chevron-left"}/>{" SPADe Software "} <i
+                    className={"fas fa-chevron-right"}/></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto text-white">
@@ -111,21 +122,29 @@ const NavBar = () => {
                         <Nav.Link href="/about" className="text-white">About</Nav.Link>
                     </Nav>
                     {
-                        isAuthenticated?
+                        data && isAuthenticated ?
+                            (
                                 <>
                                     {loadingConfigurations &&
                                         <div className="d-flex justify-content-center align-items-center">
-                                            <Spinner animation="border" variant="primary" />
+                                            <Spinner animation="border" variant="primary"/>
                                         </div>
                                     }
-                                    {configurationNames.length > 0 && createOptions()}
+                                    {configurationNames.length > 0 && (
+                                        <>
+                                        {createOptions()}
                                         <span style={{marginRight: "1em", marginLeft: "1em"}}>
                                             <i className={"fa fa-user"} style={{color: "red"}}/> {userName}
                                         </span>
-                                        <Nav.Link href="/logout"><i className={"fa fa-sign-out"} style={{color: "red"}}/> Logout</Nav.Link>
+                                            <Nav.Link href="/logout"><i className={"fa fa-sign-out"}
+                                                                        style={{color: "red"}}/> Logout</Nav.Link>
+                                        </>
+                                    )}
                                 </>
-                            :
-                            <Nav.Link href="/login">Sign in</Nav.Link>
+                            )
+                            : (
+                                <Nav.Link href="/login">Sign in</Nav.Link>
+                            )
                     }
                 </Navbar.Collapse>
             </Container>
