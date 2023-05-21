@@ -85,10 +85,7 @@ const NavBar = () => {
             fetchUserName();
         } else {
             setUserName("");
-            setLoadingConfigurations(false);
-            setLoadingUserInfo(false);
             setAuthenticated(false);
-            setNames([]);
         }
     }, [authenticated, isAuthenticated])
 
