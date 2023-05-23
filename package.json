@@ -1,7 +1,20 @@
 {
   "name": "spawn",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "authors": [{
+    "name": "Petr Urban",
+    "email": "urbanp@students.zcu.cz"
+  },
+    {
+      "name": "Jiří Trefil",
+      "email": "trefil@students.zcu.cz"
+    },
+    {
+      "name": "Petr Štěpánek",
+      "email": "petrs1@students.zcu.cz"
+    }
+  ],
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
