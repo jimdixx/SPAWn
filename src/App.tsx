@@ -24,6 +24,9 @@ import Categories from "./pages/manage/Categories";
 import Iterations from "./pages/manage/Iterations";
 import Activities from "./pages/manage/Activities";
 import Release from "./pages/manage/Release";
+
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 //<PrivateRoute component={Detect}/>
 //TODO logout
 const App = () => {
@@ -63,7 +66,9 @@ const App = () => {
                 <Route path='/project' element=
                     {
                         <RequireAuth loginPath={"/login"}>
-                            <Project />
+                            <DndProvider backend={HTML5Backend}>
+                                <Project />
+                            </DndProvider>
                         </RequireAuth>
                     }
                 />
