@@ -16,6 +16,14 @@ import Results from "./pages/Results";
 import NotFound from "./pages/error_pages/404";
 import Forbidden from "./pages/error_pages/403";
 import InternalServerError from "./pages/error_pages/500";
+import Signpost from "./pages/manage/Signpost";
+import Project from "./pages/manage/Project";
+import Person from "./pages/manage/Person";
+import Enums from "./pages/manage/Enums";
+import Categories from "./pages/manage/Categories";
+import Iterations from "./pages/manage/Iterations";
+import Activities from "./pages/manage/Activities";
+import Release from "./pages/manage/Release";
 //<PrivateRoute component={Detect}/>
 //TODO logout
 const App = () => {
@@ -46,6 +54,64 @@ const App = () => {
                     {
                         <RequireAuth loginPath={"/login"}>
                             <Configuration/>
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/signpost' element={ <Signpost /> }/>
+
+                <Route path='/project' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Project />
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/person' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Person />
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/enums' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Enums />
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/categories' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Categories />
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/iterations' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Iterations />
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/activities' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Activities />
+                        </RequireAuth>
+                    }
+                />
+
+                <Route path='/release' element=
+                    {
+                        <RequireAuth loginPath={"/login"}>
+                            <Release />
                         </RequireAuth>
                     }
                 />
