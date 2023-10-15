@@ -3,7 +3,7 @@ import NavBar from "./components/nav/NavBar";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import About from "./pages/About";
 import Detect from "./pages/Detect";
-import Configuration from "./pages/Configuration";
+import Configuration from "./pages/configuration/Configuration";
 import MainPage from "./pages/MainPage";
 import Signup from "./pages/Signup";
 import Logout from "./pages/Logout";
