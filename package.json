@@ -21,6 +21,8 @@
     "react": "^18.2.0",
     "react-auth-kit": "^2.12.2",
     "react-bootstrap": "^2.7.2",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.10.0",
