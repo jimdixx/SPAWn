@@ -4,7 +4,10 @@ import {fetchOneConfiguration} from "../../api/APIConfiguration";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {useNavigate} from "react-router-dom";
 import {getConfigurationNameFromLocalstorage} from "../../components/helperFunctions/ConfigurationSelectEvent";
-
+import Input from "../../components/input/Input";
+import { Row, Col,Container } from 'react-bootstrap';
+import {useCollapse} from 'react-collapsed';
+import Form from "react-bootstrap/Form";
 interface ConfigurationWrapper {
     configuration:string
     antiPatterns:any
@@ -41,6 +44,7 @@ interface AntiPatterns {
 }
 
 const Configuration = () => {
+    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
     const navigate = useNavigate();
     const inputChange = (inputValue:any)=>{
         console.log(inputValue);
@@ -133,11 +137,20 @@ const Configuration = () => {
         <div>
             {status === "error" && <p>error</p>}
             {status === "loading" && <p>vykresli kolecko z bootstrapu</p>}
-            {status === "success" && <div>
-                <h1>Configuration</h1>
-                {createConfigurationTable()}
+            {status === "success" &&
+                <Container className="d-flex justify-content-center align-items-center" >
+                    <Form>
+                        <Form.Group>
 
-            </div>}
+                            <h1>Configuration</h1>
+                            {createConfigurationTable()}
+
+
+                        </Form.Group>
+
+                    </Form>
+                </Container>
+            }
 
         </div>
     );
