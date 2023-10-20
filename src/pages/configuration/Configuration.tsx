@@ -7,33 +7,75 @@ import {getConfigurationNameFromLocalstorage} from "../../components/helperFunct
 
 interface ConfigurationWrapper {
     configuration:string
+    antiPatterns:any
 }
 
 interface Configuration {
     antiPattern:string,
-    thresholds: ThreshHolds[]
+    thresholds: ConfigThresholds[]
 }
-interface ThreshHolds {
+interface ConfigThresholds {
     thresholdName: string,
     value: string
 }
+
+interface AntiPatterThresholds {
+    description: string,
+    errorMessage: string,
+    isErrorMessageShown: boolean,
+    name: string,
+    printName: string;
+    type: string
+}
+
+interface AntiPatternsArrayThresholds {
+    [key:string]: AntiPatterThresholds
+}
+interface AntiPatterns {
+    catalogueFileName: string,
+    description: string,
+    id: number,
+    name:string,
+    printName: string,
+    thresholds: AntiPatternsArrayThresholds
+}
+
 const Configuration = () => {
     const navigate = useNavigate();
+    const inputChange = (inputValue:any)=>{
+        console.log(inputValue);
+    }
 
-    const createConfigurationAntipatern = (threshHolds:ThreshHolds[]):ReactNode[] => {
-        return threshHolds.map((threshHold:ThreshHolds,index)=> {
+    const createConfigurationAntipattern = (configThresHolds:ConfigThresholds[], antiPatterThresholds:AntiPatternsArrayThresholds):ReactNode[] => {
+        const index = 0;
+        return configThresHolds.map((threshHold:ConfigThresholds, index:number)=> {
+            const antiPatternThresholdName : string = antiPatterThresholds[threshHold.thresholdName].printName;
+            const antiPatternDescription: string = antiPatterThresholds[threshHold.thresholdName].description;
             return (
-                <div className={"form-grouprow"}>
-                    <label htmlFor={threshHold.thresholdName} className="col-sm-5 col-form-label">{threshHold.thresholdName}</label>
-                    <div className="col-sm-5">
 
-                                <input key={index} value={threshHold.value} className="form-control" id={threshHold.thresholdName}
-                                       name="thresholdValues"/>
 
+
+            <div {...getCollapseProps()}>
+
+                <Row >
+                    <div className="content">
+                    <Col sm={5}>
+                        <Form.Label htmlFor={antiPatternThresholdName} className="col-form-label">{antiPatternThresholdName + ":"}</Form.Label>
+                    </Col>
+
+                    <Col sm={5}>
+                        <small defaultValue={threshHold.value}>{antiPatternDescription}</small>
+
+                        <Input key={index} value={threshHold.value} onChange={inputChange} type={"text"} placeholder={"ahoj svete"} id={threshHold.thresholdName}
+                               name="thresholdValues"/>
+                    </Col>
                     </div>
+
+                </Row>
                 </div>
             )
-        });
+        }
+        );
     }
 
     const createConfigurationTable = ():ReactNode[] =>{
@@ -41,16 +83,24 @@ const Configuration = () => {
         const tmp: {configuration:[]} = JSON.parse(response.configuration);
         const configurationDefinition: [] = tmp.configuration;
 
-       return configurationDefinition.map((cfg:Configuration,index)=>{
+       return configurationDefinition.map((cfg:Configuration)=>{
+           const ant: AntiPatterns = response.antiPatterns[cfg.antiPattern];
+
             return (
-                <div className={"panel panel-default"}>
-                    <h4 className={"panel-title ap-configuration header"}><a className={"ap-configuration-header"} href={"#"}>{cfg.antiPattern}</a></h4>
-                    <div className={"panel-collapse in collapse show"} id={cfg.antiPattern}>
+
+                    <div className={"panel-collapse in collapse show"} id={ant.printName}>
                     {
-                        createConfigurationAntipatern(cfg.thresholds)
+
+                        <div className={"collapsible"}>
+                            <div className="header" {...getToggleProps()}>
+                                <h4>{ant.printName}</h4>
+                            </div>
+                                    {createConfigurationAntipattern(cfg.thresholds, ant.thresholds)}
+
+
+                    </div>
                     }
                     </div>
-                </div>
             )
        });
 
