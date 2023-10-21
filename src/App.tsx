@@ -17,7 +17,7 @@ import NotFound from "./pages/error_pages/404";
 import Forbidden from "./pages/error_pages/403";
 import InternalServerError from "./pages/error_pages/500";
 import Signpost from "./pages/manage/Signpost";
-import Project from "./pages/manage/Project";
+import Project from "./pages/manage/Projects";
 import Person from "./pages/manage/Person";
 import Enums from "./pages/manage/Enums";
 import Categories from "./pages/manage/Categories";

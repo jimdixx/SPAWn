@@ -1,6 +1,4 @@
-import ApiCaller, {
-    API_RESPONSE,
-    HTTP_METHOD} from "../components/api/ApiCaller";
+import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../components/api/ApiCaller";
 
 const PROJECT_URL = "/management/projects"
 
@@ -10,7 +8,8 @@ export interface ProjectData {
         name: string,
         description: string
     },
-    children: ProjectData[]
+    children: ProjectData[],
+    parent?: ProjectData
 }
 
 export const fetchProjects = async (username:string): Promise<API_RESPONSE> => {
@@ -53,14 +52,6 @@ const API_RESPONSE2 = {
                     "id": 4,
                     "name": "Aplikace pro tvorbu map obslu?nosti (POVED) - QWERTY",
                     "description": ""
-                },
-                "children": []
-            },
-            {
-                "project": {
-                    "id": 5,
-                    "name": "Indexace a fulltextové vyhledávání v historických obrazových dokumentech (KIV) - ANONYMOUS",
-                    "description": "Pro podporu výzkumných projekt? pot?ebujeme vytvo?it vyhledáva? zalo?ený na platform? Apache Solr, který umo?ní efektivní fulltextové vyhledávání nad mno?inou historických dokument? (scan?) rozpoznaných OCR systémem. Sou?ástí práce bude i webová aplikace (klient / frontend) pro demonstraci funk?nosti u?ivatelsky p?ív?tivým zp?sobem, která umo?ní zadávat dotazy a také p?ehledné zobrazení výsledk? dle r?zných po?adavk?.\r\n"
                 },
                 "children": []
             },
@@ -122,14 +113,6 @@ const API_RESPONSE2 = {
             },
             {
                 "project": {
-                    "id": 14,
-                    "name": "CoronaTracker",
-                    "description": "Coronavirus tracker app for iOS & macOS with maps & charts"
-                },
-                "children": []
-            },
-            {
-                "project": {
                     "id": 15,
                     "name": "google-maps-ios-utils",
                     "description": "Google Maps SDK for iOS Utility Library"
@@ -141,8 +124,25 @@ const API_RESPONSE2 = {
                             "name": "responsive-html-email-signature",
                             "description": "Template generator for (responsive) emails & email signatures :sparkles:"
                         },
-                        "children": []
-                    }
+                        "children": [
+                            {
+                                            "project": {
+                                                "id": 5,
+                                                "name": "Indexace a fulltextové vyhledávání v historických obrazových dokumentech (KIV) - ANONYMOUS",
+                                                "description": "Pro podporu výzkumných projekt? pot?ebujeme vytvo?it vyhledáva? zalo?ený na platform? Apache Solr, který umo?ní efektivní fulltextové vyhledávání nad mno?inou historických dokument? (scan?) rozpoznaných OCR systémem. Sou?ástí práce bude i webová aplikace (klient / frontend) pro demonstraci funk?nosti u?ivatelsky p?ív?tivým zp?sobem, která umo?ní zadávat dotazy a také p?ehledné zobrazení výsledk? dle r?zných po?adavk?.\r\n"
+                                            },
+                                            "children": []
+                                        }
+                        ]
+                    },
+                     {
+                                    "project": {
+                                        "id": 14,
+                                        "name": "CoronaTracker",
+                                        "description": "Coronavirus tracker app for iOS & macOS with maps & charts"
+                                    },
+                                    "children": []
+                                },
                 ]
             }
         ]
