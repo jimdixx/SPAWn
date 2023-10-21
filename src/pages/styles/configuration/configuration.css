@@ -242,3 +242,20 @@ footer {
     box-shadow:rgba(224, 224, 224, 0.267) 10px 10px 10px;
     margin-bottom: 3em;
 }
+
+.collapsible .content {
+    padding: 6px;
+    background-color: rgb(240, 240, 240);
+    font-size: 14px;
+}
+.collapsible .header {
+    background-color: rgb(200, 200, 200);
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid rgb(220, 220, 220);
+}
+.collapsible .header .title {
+    font-weight: bold;
+}
