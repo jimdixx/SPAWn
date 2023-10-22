@@ -12,9 +12,9 @@ export interface ProjectData {
     parent?: ProjectData
 }
 
-export const fetchProjects = async (username:string): Promise<API_RESPONSE> => {
+export const fetchProjects = async (username?:string): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({name:username});
-    // const response: API_RESPONSE = await ApiCaller(data, PROJECT_URL, HTTP_METHOD.POST);
+    // return await ApiCaller(data, PROJECT_URL, HTTP_METHOD.POST);
     return API_RESPONSE2;
 }
 

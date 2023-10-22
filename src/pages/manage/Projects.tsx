@@ -1,20 +1,37 @@
 import React, {useEffect, useState, useMemo, useCallback} from "react";
-import {useDrop, useDrag} from 'react-dnd';
 import {useQuery} from "react-query";
+import {useNavigate} from "react-router-dom";
 import {fetchProjects, ProjectData} from "../../api/APIManagementProjects";
+import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import Project from "../../components/manage/Project";
+import {Button, Spinner} from "react-bootstrap";
 
 const Projects = () => {
     const [projectData, setProjectData] = useState<ProjectData[]>([]);
-    const [toParentArray, setToParentArray] = useState<ProjectData[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [userName, setUserName] = useState<string>("");
+    const navigate = useNavigate();
 
     const fetchData = async () => {
-        const response = await fetchProjects("Petr");
-        setProjectData(response.response.data as ProjectData[]);
-        return response.response.data;
+        const userName:string = retrieveUsernameFromStorage();
+
+        if(!userName) {
+            return;
+        }
+
+        setUserName(userName);
+
+        const response = await fetchProjects(userName);
+
+        if (response.redirect) {
+            navigate(response.redirect);
+        } else {
+            setProjectData(response.response.data as ProjectData[]);
+            setLoading(false);
+        }
     };
 
-    const {error, data} = useQuery('projects', fetchData);
+    const {error, data, status} = useQuery('projects', fetchData,{ refetchOnWindowFocus: false});
 
     const handleMove = (projectIdFrom: number, projectIdTo: number) => {
         let fromParent: ProjectData | undefined = undefined;
@@ -98,12 +115,22 @@ const Projects = () => {
 
     };
 
-
     return (
+
         <div className="container">
-            {projectData.map((project, index) => (
-                <Project key={index} projectData={project} level={0} onMove={handleMove}/>
-            ))}
+            {
+                loading ? (
+                        <div className={"text-center"}>
+                            <Spinner animation={"border"} variant={"primary"}/>
+                        </div>
+                    )
+                    :
+                    (
+                        projectData.map((project, index) => (
+                            <Project key={index} projectData={project} level={0} onMove={handleMove}/>
+                        ))
+                    )
+            }
         </div>
     );
 };
