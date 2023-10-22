@@ -1,8 +1,9 @@
-import React, {useMemo, useState, useRef, useLayoutEffect, useEffect} from 'react';
+import React from 'react';
 import {useDrop, useDrag} from 'react-dnd';
 import {ProjectData} from "../../api/APIManagementProjects";
-import {Simulate} from "react-dom/test-utils";
-import drag = Simulate.drag;
+import { Card } from 'antd';
+import {Container} from "react-bootstrap";
+const { Meta } = Card;
 
 interface ProjectProps {
     projectData: ProjectData;
@@ -30,19 +31,30 @@ const Project: React.FC<ProjectProps> = React.memo(({projectData, level, onMove}
 
 
     return (
-        <div ref={(node) => { ref(node); drop(node); }} className="card mb-2">
-            <div className="card-body">
-                <h5 className="card-title">{projectData.project.name}</h5>
-                <p className="card-text">{projectData.project.description}</p>
-            </div>
-            {projectData.children.length > 0 && (
-                <div className="card-body">
-                    {projectData.children.map((child, index) => (
-                        <Project key={index} projectData={child} level={level + 1} onMove={onMove} />
-                    ))}
-                </div>
-            )}
-        </div>
+        <Container style={{
+            justifyItems: "center",
+            alignItems: "center"
+        }}>
+            <Card
+                hoverable
+                style={{
+                    marginBottom: '0.5%',
+                }}
+                ref={(node: HTMLDivElement) => { ref(node); drop(node); }}
+            >
+                <Meta
+                    title={projectData.project.name}
+                    // description={projectData.project.description}
+                />
+                {projectData.children.length > 0 && (
+                    <div className="card-body" style={{marginTop: "1%"}}>
+                        {projectData.children.map((child, index) => (
+                            <Project key={index} projectData={child} level={level + 1} onMove={onMove} />
+                        ))}
+                    </div>
+                )}
+            </Card>
+        </Container>
     );
 });
 
