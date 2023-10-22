@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react';
-import { useDrop, useDrag } from 'react-dnd';
-import { ProjectData } from "../../api/APIManagementProjects";
+import React, {useMemo, useState, useRef, useLayoutEffect, useEffect} from 'react';
+import {useDrop, useDrag} from 'react-dnd';
+import {ProjectData} from "../../api/APIManagementProjects";
+import {Simulate} from "react-dom/test-utils";
+import drag = Simulate.drag;
 
 interface ProjectProps {
     projectData: ProjectData;
@@ -8,8 +10,8 @@ interface ProjectProps {
     onMove: (fromId: number, toId: number) => void;
 }
 
-const Project: React.FC<ProjectProps> = React.memo(({ projectData, level, onMove }) => {
-//     const marginLeft = level * 20;
+const Project: React.FC<ProjectProps> = React.memo(({projectData, level, onMove}) => {
+
     const [, ref] = useDrag({
         type: 'CARD',
         item: { id: projectData.project.id },
@@ -17,15 +19,18 @@ const Project: React.FC<ProjectProps> = React.memo(({ projectData, level, onMove
 
     const [, drop] = useDrop({
         accept: 'CARD',
-        drop: (draggedProject: { id: number }) => {
-            onMove(draggedProject.id, projectData.project.id);
+        drop: (draggedProject: { id: number }, monitor) => {
+            if (!monitor.didDrop()) {
+                const item = monitor.getDropResult();
+                console.log(item);
+                onMove(draggedProject.id, projectData.project.id);
+            }
         },
     });
 
+
     return (
-        <div ref={(node) => ref(drop(node))} className="card mb-2"
-//         style={{ marginLeft: `${marginLeft}px` }}
-        >
+        <div ref={(node) => { ref(node); drop(node); }} className="card mb-2">
             <div className="card-body">
                 <h5 className="card-title">{projectData.project.name}</h5>
                 <p className="card-text">{projectData.project.description}</p>

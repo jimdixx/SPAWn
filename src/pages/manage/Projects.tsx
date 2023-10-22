@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useDrop, useDrag } from 'react-dnd';
-import { useQuery } from "react-query";
-import { fetchProjects, ProjectData } from "../../api/APIManagementProjects";
+import React, {useEffect, useState, useMemo, useCallback} from "react";
+import {useDrop, useDrag} from 'react-dnd';
+import {useQuery} from "react-query";
+import {fetchProjects, ProjectData} from "../../api/APIManagementProjects";
 import Project from "../../components/manage/Project";
 
 const Projects = () => {
@@ -14,14 +14,11 @@ const Projects = () => {
         return response.response.data;
     };
 
-    const { error, data } = useQuery('projects', fetchData);
+    const {error, data} = useQuery('projects', fetchData);
 
-const handleMove = useCallback((projectIdFrom: number, projectIdTo: number) => {
+    const handleMove = (projectIdFrom: number, projectIdTo: number) => {
         let fromParent: ProjectData | undefined = undefined;
         let toParent: ProjectData | undefined = undefined;
-
-//         console.log("BEFORE");
-//         console.log(projectData);
 
         const bfsTreeSearch = (project: ProjectData, projectIdToFind: number) => {
             let projectParent: ProjectData | undefined = undefined;
@@ -37,7 +34,7 @@ const handleMove = useCallback((projectIdFrom: number, projectIdTo: number) => {
                 while (queue.length !== 0) {
                     let currProject = queue.shift() as ProjectData;
 
-                    if (currProject.project.id === projectIdToFind)  {
+                    if (currProject.project.id === projectIdToFind) {
                         return currProject.parent;
                     }
 
@@ -62,7 +59,7 @@ const handleMove = useCallback((projectIdFrom: number, projectIdTo: number) => {
             for (let i = 0; i < updatedData.length; i++) {
                 fromParent = bfsTreeSearch(updatedData[i], projectIdFrom);
                 if (fromParent !== undefined) {
-                   break;
+                    break;
                 }
             }
         } else {
@@ -70,55 +67,42 @@ const handleMove = useCallback((projectIdFrom: number, projectIdTo: number) => {
         }
 
         if (!toParent) {
-          for (let i = 0; i < updatedData.length; i++) {
+            for (let i = 0; i < updatedData.length; i++) {
                 toParent = bfsTreeSearch(updatedData[i], projectIdTo);
                 if (toParent !== undefined) {
                     break;
-              }
-          }
-          toParent = toParent?.children?.find(e => e.project.id === projectIdTo);
+                }
+            }
+            toParent = toParent?.children?.find(e => e.project.id === projectIdTo);
         }
 
         if (isProjectFromRoot) {
             if (toParent && fromParent) {
-                const updatedToParent = { ...toParent, children: [...(toParent.children || []), fromParent] };
-                let updatedData = projectData.map(item =>
-                    item.project.id === updatedToParent.project.id ? updatedToParent : item
-                );
-
-                updatedData = updatedData.filter(e => e.project.id !== projectIdFrom);
-
+                toParent.children.push(fromParent);
+                updatedData = updatedData.filter(e => e.project.id !== fromParent?.project.id)
                 setProjectData(updatedData);
             }
         } else {
 
-           fromParent = fromParent?.children?.find(e => e.project.id === projectIdFrom);
+            let fromParentChild = fromParent?.children?.find(e => e.project.id === projectIdFrom);
 
-           if (toParent && fromParent) {
-               const updatedToParent = { ...toParent, children: [...(toParent?.children || []), fromParent] };
-               toParent = updatedToParent;
-           }
+            if (toParent && fromParent && fromParentChild) {
+                toParent.children.push(fromParentChild);
+                let tmp = fromParent.children.filter(e => e.project.id !== fromParentChild?.project.id);
+                fromParent.children = tmp;
+                setProjectData(updatedData);
+            }
 
-            // TODO FIND THE SPECIFIC ELEMENT IN THE PROJECTDATA ARRAY AND UPDATE IT WITH NEW VALUES
-
-//            let updatedData = projectData.map(item => item?.project?.id === updatedToParent?.project?.id ? updatedToParent : item);
-
-//            updatedData = updatedData.filter(e => e.project?.id !== projectIdFrom);
-//            setProjectData(updatedData);
         }
 
 
-//         console.log("AFTER");
-//         console.log(projectData);
-
-    }, [projectData]);
-
+    };
 
 
     return (
         <div className="container">
             {projectData.map((project, index) => (
-                <Project key={index} projectData={project} level={0} onMove={handleMove} />
+                <Project key={index} projectData={project} level={0} onMove={handleMove}/>
             ))}
         </div>
     );
