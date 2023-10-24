@@ -4,12 +4,17 @@ import {useNavigate} from "react-router-dom";
 import {fetchProjects, ProjectData} from "../../api/APIManagementProjects";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import Project from "../../components/manage/Project";
-import {Button, Spinner} from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
+import { Row, Col, Input, Form, Button, Spin } from 'antd';
 
 const Projects = () => {
     const [projectData, setProjectData] = useState<ProjectData[]>([]);
     const [loading, setLoading] = useState(false);
     const [userName, setUserName] = useState<string>("");
+    const [superProjectName, setSuperProjectName] = useState("");
+    const [superProjectDescription, setSuperProjectDescription] = useState("");
+    const [superProjectFakedId, setSuperProjectFakedId] = useState(-1);
+    const [projectError, setProjectError] = useState("");
     const navigate = useNavigate();
 
     const fetchData = async () => {
@@ -26,12 +31,64 @@ const Projects = () => {
         if (response.redirect) {
             navigate(response.redirect);
         } else {
-            setProjectData(response.response.data as ProjectData[]);
+            let fetchedData = response.response.data as ProjectData[];
+            // setProjectData(response.response.data as ProjectData[]);
+
+            const fakeParent = {
+                project: {
+                    id: 0,
+                    name: "ROOT",
+                    description: "ROOT"
+                },
+                children: [],
+            }
+
+            let updatedData = fetchedData
+            let fakeParentChildren = fakeParent.children as ProjectData[];
+
+            updatedData.forEach(e => {
+                fakeParentChildren.push(e);
+            });
+
+            updatedData.unshift(fakeParent);
+
+            updatedData = updatedData.filter(e => e.project.id === 0);
+
+            setProjectData(updatedData);
+
             setLoading(false);
         }
     };
 
-    const {error, data, status} = useQuery('projects', fetchData,{ refetchOnWindowFocus: false});
+    const addSuperProject = () => {
+        if (!superProjectName && !superProjectDescription) {
+            setProjectError("Fill all the fields!");
+            return;
+        }
+        console.log(`create new project with name ${superProjectName}, ${superProjectDescription}`);
+
+        const newSuperProject = {
+            project: {
+                id: superProjectFakedId,
+                name: superProjectName,
+                description: superProjectDescription
+            },
+            children: [],
+        }
+        setSuperProjectFakedId((prevValue) => prevValue - 1);
+
+        let projectDataToUpdate = [...projectData];
+        let root = projectDataToUpdate.filter(e => e.project.id === 0)[0];
+        root.children.push(newSuperProject);
+
+        setProjectData(projectDataToUpdate);
+    };
+
+    useEffect(() => {
+        console.log(projectData);
+    }, [projectData])
+
+    const { error, data, status } = useQuery('projects', fetchData,{ refetchOnWindowFocus: false});
 
     const handleMove = (projectIdFrom: number, projectIdTo: number) => {
         let fromParent: ProjectData | undefined = undefined;
@@ -117,21 +174,56 @@ const Projects = () => {
 
     return (
 
-        <div className="container">
-            {
-                loading ? (
-                        <div className={"text-center"}>
-                            <Spinner animation={"border"} variant={"primary"}/>
-                        </div>
-                    )
-                    :
-                    (
-                        projectData.map((project, index) => (
-                            <Project key={index} projectData={project} level={0} onMove={handleMove}/>
-                        ))
-                    )
-            }
-        </div>
+        <Form>
+            <div className="container">
+                {loading ? (
+                    <div className={"text-center"}>
+                        <Spin size="large" />
+                    </div>
+                ) : (
+                    <>
+                        {projectData.map((project, index) => (
+                            <Project key={index} projectData={project} level={0} onMove={handleMove} />
+                        ))}
+                        <Row gutter={[16, 16]}>
+                            <Col span={12} offset={6} style={{textAlign: "center"}}>
+                                <h2>Create new super project ♥</h2>
+                            </Col>
+                            <Col span={12} offset={6}>
+                                <Form.Item label="Super Project Name">
+                                    <Input
+                                        type="text"
+                                        name="super-project-name"
+                                        value={superProjectName}
+                                        onChange={(e) => setSuperProjectName(e.target.value)}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12} offset={6}>
+                                <Form.Item label="Super Project Description">
+                                    <Input
+                                        type="text"
+                                        name="super-project-description"
+                                        value={superProjectDescription}
+                                        onChange={(e) => setSuperProjectDescription(e.target.value)}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12} offset={6} style={{ textAlign: 'center' }}>
+                                <Form.Item>
+                                    <Button
+                                        type="primary"
+                                        onClick={addSuperProject}
+                                    >
+                                        Create new super project
+                                    </Button>
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </>
+                )}
+            </div>
+        </Form>
     );
 };
 
