@@ -32,12 +32,11 @@ const Projects = () => {
             navigate(response.redirect);
         } else {
             let fetchedData = response.response.data as ProjectData[];
-            // setProjectData(response.response.data as ProjectData[]);
 
             const fakeParent = {
                 project: {
                     id: 0,
-                    name: "ROOT",
+                    name: "",
                     description: "ROOT"
                 },
                 children: [],
