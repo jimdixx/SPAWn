@@ -16,6 +16,7 @@ const Project: React.FC<ProjectProps> = React.memo(({projectData, level, onMove}
     const [, ref] = useDrag({
         type: 'CARD',
         item: { id: projectData.project.id },
+        canDrag: projectData.project.id !== 0, // root card (faked parent project with id 0) not draggable
     });
 
     const [, drop] = useDrop({
@@ -36,7 +37,8 @@ const Project: React.FC<ProjectProps> = React.memo(({projectData, level, onMove}
             alignItems: "center"
         }}>
             <Card
-                hoverable
+                // root card (faked parent project with id 0) not hoverable
+                hoverable={projectData.project.id !== 0}
                 style={{
                     marginBottom: '0.5%',
                 }}
