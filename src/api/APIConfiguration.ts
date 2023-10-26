@@ -20,13 +20,25 @@ export const fetchConfigurationNames = async (username:string): Promise<API_RESP
 }
 
 
-export const saveNewConfiguration = async(username:string,configurationName:string,configurationDefinition:{},isDefault:string="N") =>{
-    const data:{} = JSON.stringify({user:{name:username},configurationName:configurationName,configuration:{configuration:configurationDefinition}, isDefault:isDefault});
-    const response: API_RESPONSE = await ApiCaller(data, CONFIGURATION_SAVE_URL, HTTP_METHOD.POST);
+export const saveNewConfiguration = async(username:string,configurationName:string,configurationDefinition:{},isDefault:string="N"):Promise<API_RESPONSE> =>{
+    const data:{} = createConfigurationJson(username,configurationName,configurationDefinition,isDefault);
+    const response: API_RESPONSE = await ApiCaller(data, CONFIGURATION_SAVE_AS_URL, HTTP_METHOD.POST);
     return response;
 
 }
 
+export const saveConfiguration = async (username: string, configurationName:string ,configurationDefinition:{},isDefault:string="N"):Promise<API_RESPONSE> => {
+    const data:{} = createConfigurationJson(username,configurationName,configurationDefinition,isDefault);
+    const response: API_RESPONSE = await ApiCaller(data, CONFIGURATION_UPDATE_URL, HTTP_METHOD.PUT);
+    return response;
+}
+
+
+
+const createConfigurationJson = (username:string,configurationName:string,configurationDefinition:{},isDefault:string):{}=>{
+    const data:{} = JSON.stringify({user:{name:username},configurationName:configurationName,configuration:{configuration:configurationDefinition}, isDefault:isDefault});
+    return data;
+}
 
 
 

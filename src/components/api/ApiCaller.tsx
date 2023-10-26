@@ -3,7 +3,8 @@ import { axiosPrivate } from "../../api/axios";
 
 export enum HTTP_METHOD {
     "POST",
-    "GET"
+    "GET",
+    "PUT"
 }
 
 const doApiCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) => {
@@ -12,6 +13,8 @@ const doApiCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) => {
             return await axiosPrivate().post(url, data);
         case HTTP_METHOD.GET:
             return await axiosPrivate().get(url);
+        case HTTP_METHOD.PUT:
+            return await axiosPrivate().put(url,data);
     }
 }
 

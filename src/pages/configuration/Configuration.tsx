@@ -1,6 +1,6 @@
 import React, {FormEvent, ReactNode, useState} from 'react';
 import {useQuery} from "react-query";
-import {fetchOneConfiguration, saveNewConfiguration} from "../../api/APIConfiguration";
+import {fetchOneConfiguration, saveNewConfiguration,saveConfiguration} from "../../api/APIConfiguration";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {useNavigate} from "react-router-dom";
 import {getConfigurationNameFromLocalstorage} from "../../components/helperFunctions/ConfigurationSelectEvent";
@@ -58,11 +58,13 @@ interface AntiPatterns {
 }
 
 const Configuration = () => {
+    const SAVE_AS_BUTTON_ID: string = "SAVE_AS";
+    const SAVE_BUTTON_ID: string = "SAVE";
+
     const navigate = useNavigate();
     const [form,setForm] = useState<formDataObject>({});
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const [alertStatus,setAlertStatus] = useState("");
 
     const [configurationName, setConfiguratioName] = useState<string>("");
     const [userName, setUserName] = useState<string>("");
@@ -144,12 +146,30 @@ const Configuration = () => {
         if(!data){
             throw new Error("Configuration data not available");
         }
+        // console.log(typeof(event));
 
         const configurationDefinition: Configuration[] = data?.configuration;
+        let response;
+        let responseData;
         updateConfiguration(configurationDefinition);
-        const response = await saveNewConfiguration(userName,configurationName,configurationDefinition);
-        const responseData = response.response.data as {message:string};
-        if(response.response.status === 200){
+
+        
+        if(event.nativeEvent.submitter.id === SAVE_BUTTON_ID) { //update of configuration
+            const configurationId: string|undefined = getConfigurationNameFromLocalstorage();
+
+            if(configurationId === undefined){
+                throw new Error("No configuration selected");
+            }
+            response = await saveConfiguration(userName,configurationId,configurationDefinition);
+            responseData = response.response.data as {message:string};
+                
+        } else { //creation off new configuration
+            response = await saveNewConfiguration(userName,configurationName,configurationDefinition);
+            responseData = response.response.data as {message:string};
+        }
+
+        
+        if (response?.response.status === 201) { //configuration created
             setSuccessMessage(`Configuration with name ${configurationName} created`);
             setErrorMessage("");
         }
@@ -201,7 +221,7 @@ const Configuration = () => {
                             </Col>
 
                             <Col sm={7}>
-                                <Button type={"submit"} >Save as</Button>
+                                <Button id={SAVE_AS_BUTTON_ID} type={"submit"} >Save as</Button>
                                 <Input value={configurationName} type={"text"} id={"save_as_name"}
                                        name={"configuration_name"} placeholder={"New configuration name"} onChange={(elementId, value)=>{setConfiguratioName(value);}} />
                             </Col>
