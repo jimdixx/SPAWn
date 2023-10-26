@@ -4,8 +4,8 @@ import {useNavigate} from "react-router-dom";
 import {fetchProjects, ProjectData} from "../../api/APIManagementProjects";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import Project from "../../components/manage/Project";
-import { Spinner } from "react-bootstrap";
-import { Row, Col, Input, Form, Button, Spin } from 'antd';
+import { Spinner, Container, Row, Col, Button, Form } from "react-bootstrap";
+import { Spin } from 'antd';
 
 const Projects = () => {
     const [projectData, setProjectData] = useState<ProjectData[]>([]);
@@ -87,6 +87,10 @@ const Projects = () => {
         root.children.push(newSuperProject);
 
         setProjectData(projectDataToUpdate);
+
+        // Clear the input values after submission
+        setSuperProjectName('');
+        setSuperProjectDescription('');
     };
 
     useEffect(() => {
@@ -207,57 +211,79 @@ const Projects = () => {
         }
     };
 
+    /*
+     Handling of edited projects data save
+    */
+    const handleSave = () => {
+        console.log("Saving data.");
+        //TODO: send projectData to SPADe
+    }
+
     return (
-        <Form>
-            <div className="container">
-                {loading ? (
-                    <div className={"text-center"}>
-                        <Spin size="large" />
-                    </div>
-                ) : (
-                    <>
-                        {projectData.map((project, index) => (
-                            <Project key={index} projectData={project} level={0} onMove={handleMove} />
-                        ))}
-                        <Row gutter={[16, 16]}>
-                            <Col span={12} offset={6} style={{textAlign: "center"}}>
-                                <h2>Create new super project ♥</h2>
-                            </Col>
-                            <Col span={12} offset={6}>
-                                <Form.Item label="Super Project Name">
-                                    <Input
-                                        type="text"
-                                        name="super-project-name"
-                                        value={superProjectName}
-                                        onChange={(e) => setSuperProjectName(e.target.value)}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12} offset={6}>
-                                <Form.Item label="Super Project Description">
-                                    <Input
-                                        type="text"
-                                        name="super-project-description"
-                                        value={superProjectDescription}
-                                        onChange={(e) => setSuperProjectDescription(e.target.value)}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12} offset={6} style={{ textAlign: 'center' }}>
-                                <Form.Item>
-                                    <Button
-                                        type="primary"
-                                        onClick={addSuperProject}
-                                    >
-                                        Create new super project
-                                    </Button>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </>
-                )}
-            </div>
-        </Form>
+        <Container>
+            <h3>Projects</h3>
+            <Container>
+                <Button
+                    variant="primary"
+                    onClick={handleSave}
+                >
+                    Save Projects Structure
+                </Button>
+            </Container>
+            <Form>
+                <Container>
+                    {loading ? (
+                        <div className={"text-center"}>
+                            <Spinner animation="border" />
+                        </div>
+                    ) : (
+                        <>
+                            {projectData.map((project, index) => (
+                                <Project key={index} projectData={project} level={0} onMove={handleMove} />
+                            ))}
+
+                            <Container className="justify-content-center mt-5" style={{maxWidth: '50%'}}>
+                                <Row className="text-center">
+                                    <h4>Create New Superproject</h4>
+                                </Row>
+                                <Row className="m-3">
+                                    <Form.Group>
+                                        <Form.Label>Superproject Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            id="super-project-name"
+                                            value={superProjectName}
+                                            onChange={(e) => setSuperProjectName(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="m-3">
+                                    <Form.Group>
+                                        <Form.Label>Superproject Description</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            id="super-project-description"
+                                            value={superProjectDescription}
+                                            onChange={(e) => setSuperProjectDescription(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="text-center">
+                                    <Form.Group>
+                                        <Button
+                                            variant="primary"
+                                            onClick={addSuperProject}
+                                        >
+                                            Create New Superproject
+                                        </Button>
+                                    </Form.Group>
+                                </Row>
+                            </Container>
+                        </>
+                    )}
+                </Container>
+            </Form>
+        </Container>
     );
 };
 
