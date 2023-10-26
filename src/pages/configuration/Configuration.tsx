@@ -69,6 +69,9 @@ const Configuration = () => {
     const [configurationName, setConfiguratioName] = useState<string>("");
     const [userName, setUserName] = useState<string>("");
 
+    /**
+     * This method gets data about configuration which is chosen in nav bab
+     * */
     const fetchConfiguration = async () => {
         const userName:string = retrieveUsernameFromStorage();
 
@@ -94,11 +97,17 @@ const Configuration = () => {
     const {data, status} = useQuery("configurations",fetchConfiguration,{ refetchOnWindowFocus: false});
 
 
+    /**
+     * Method which updates values in form on page
+     * */
     const formDataChange = (elementId:string,inputValue:string)=>{
         const updatedForm = {...form, [elementId]:inputValue};
         setForm(updatedForm);
     }
 
+    /**
+     * Method to create content of Antipatterns collapsible element
+     * */
     const createConfigurationAntipattern = (configThresHolds:ConfigThresholds[], antiPatterThresholds:AntiPatternsArrayThresholds):ReactNode => {
         return configThresHolds.map((threshHold:ConfigThresholds, index:number)=> {
             const antiPatternThresholdName : string = antiPatterThresholds[threshHold.thresholdName].printName;
@@ -117,7 +126,10 @@ const Configuration = () => {
             )
         });
     }
-    //
+    
+    /**
+     * Method to created headers of collapsible elements
+     * */
     const createConfigurationTable = ():ReactNode[] =>{
         if(!data){
             throw new Error("Configuration data not available");
@@ -135,13 +147,12 @@ const Configuration = () => {
             )
        });
     }
-
-
-    const submitConfigurationForm = async (event:FormEvent) =>{
-
-    }
-
-    const uploadNewConfiguration = async (event:FormEvent) =>{
+    
+    /**
+     * Action on 'SAVE' and 'SAVE AS' buttons
+     * It gets configuration, send it vis APIConfiguration and show result
+     * */
+    const uploadNewConfiguration = async (event:any) =>{
         event.preventDefault();
         if(!data){
             throw new Error("Configuration data not available");
@@ -173,13 +184,19 @@ const Configuration = () => {
             setSuccessMessage(`Configuration with name ${configurationName} created`);
             setErrorMessage("");
         }
-        else{
+        else if (response?.response.status === 200) { //configuration updated
+            setSuccessMessage(responseData.message);
+            setErrorMessage("");
+        } else { //error state
             setErrorMessage(`Configuration could not be created: ${responseData.message}`)
             setSuccessMessage("");
         }
 
     }
 
+    /**
+     * Updates configuration from form
+     * */
     function updateConfiguration(configurationDefinition:Configuration[]) {
         configurationDefinition.forEach((config:Configuration)=> {
             const configThreshold:ConfigThresholds[] = config.thresholds;
@@ -189,6 +206,9 @@ const Configuration = () => {
         });
     }
 
+    /**
+     * Fill up form values from configuration
+     * */
     const setDefaultInputState = (configurationDefinitionWraper:ConfigurationDefinitionWrapper)=>{
         const configurations = configurationDefinitionWraper.configuration;
         const initialForm:formDataObject = {};
@@ -204,6 +224,9 @@ const Configuration = () => {
 
     }
 
+    /**
+     * Body of page
+     * */
     return (
         <div>
             {status === "error" && <p>error</p>}
@@ -217,7 +240,7 @@ const Configuration = () => {
                         </Form.Group>
                         <Row>
                             <Col sm={5}>
-                                <Button type={"button"}>Save</Button>
+                                <Button id={SAVE_BUTTON_ID} type={"submit"}>Save</Button>
                             </Col>
 
                             <Col sm={7}>

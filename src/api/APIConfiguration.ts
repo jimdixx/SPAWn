@@ -2,8 +2,8 @@ import ApiCaller, {API_RESPONSE, HTTP_METHOD} from "../components/api/ApiCaller"
 
 const CONFIGURATION_URL = '/configuration/configuration';
 const CONFIGURATION_NAME_URL = '/configuration/configuration_name';
-const CONFIGURATION_SAVE_URL = '/configuration/upload_configuration';
-const CONFIGURATION_UPDATE_URL = '/configuration/configuration_name';
+const CONFIGURATION_SAVE_AS_URL = '/configuration/upload_configuration';
+const CONFIGURATION_UPDATE_URL = '/configuration/update_configuration';
 
 export const fetchOneConfiguration = async (username:string, configurationId:string): Promise<API_RESPONSE> => {
     const requestBody:{} = {user:{name:username},id:configurationId};
@@ -24,7 +24,6 @@ export const saveNewConfiguration = async(username:string,configurationName:stri
     const data:{} = createConfigurationJson(username,configurationName,configurationDefinition,isDefault);
     const response: API_RESPONSE = await ApiCaller(data, CONFIGURATION_SAVE_AS_URL, HTTP_METHOD.POST);
     return response;
-
 }
 
 export const saveConfiguration = async (username: string, configurationName:string ,configurationDefinition:{},isDefault:string="N"):Promise<API_RESPONSE> => {
