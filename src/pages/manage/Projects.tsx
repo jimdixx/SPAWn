@@ -17,6 +17,9 @@ const Projects = () => {
     const [projectError, setProjectError] = useState("");
     const navigate = useNavigate();
 
+    /*
+     Fetching projects data
+    */
     const fetchData = async () => {
         const userName:string = retrieveUsernameFromStorage();
 
@@ -59,6 +62,9 @@ const Projects = () => {
         }
     };
 
+    /*
+      Create new superproject
+    */
     const addSuperProject = () => {
         if (!superProjectName && !superProjectDescription) {
             setProjectError("Fill all the fields!");
@@ -89,10 +95,25 @@ const Projects = () => {
 
     const { error, data, status } = useQuery('projects', fetchData,{ refetchOnWindowFocus: false});
 
+    /*
+     Handling drag and drop move of the project
+    */
     const handleMove = (projectIdFrom: number, projectIdTo: number) => {
         let fromParent: ProjectData | undefined = undefined;
         let toParent: ProjectData | undefined = undefined;
 
+        // project cannot be dropped on itself
+        if (projectIdFrom === projectIdTo) {
+            //console.log("Project dropped on itself");
+            return;
+        }
+
+        /*
+         Bfs tree search algorithm
+         project: project in whose children to look for
+         projectIdToFind: project id to find
+         return: id of the parent of the project to find
+        */
         const bfsTreeSearch = (project: ProjectData, projectIdToFind: number) => {
             let projectParent: ProjectData | undefined = undefined;
 
@@ -139,6 +160,23 @@ const Projects = () => {
             isProjectFromRoot = true;
         }
 
+        // project cannot be dropped on its direct parent
+        if (projectIdTo === fromParent?.project.id) {
+            //console.log("Project dropped on its direct parent.");
+            return;
+        }
+
+        // project cannot be dropped on its descendant
+        if (fromParent) {
+            let projectFrom: ProjectData | undefined = fromParent?.children?.find(item => item.project.id === projectIdFrom);
+            if (projectFrom) {
+                if (bfsTreeSearch(projectFrom, projectIdTo) !== undefined) {
+                    //console.log("Project dropped on its descendant.");
+                    return;
+                }
+            }
+        }
+
         if (!toParent) {
             for (let i = 0; i < updatedData.length; i++) {
                 toParent = bfsTreeSearch(updatedData[i], projectIdTo);
@@ -167,12 +205,9 @@ const Projects = () => {
             }
 
         }
-
-
     };
 
     return (
-
         <Form>
             <div className="container">
                 {loading ? (

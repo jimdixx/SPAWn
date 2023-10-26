@@ -24,7 +24,7 @@ const Project: React.FC<ProjectProps> = React.memo(({projectData, level, onMove}
         drop: (draggedProject: { id: number }, monitor) => {
             if (!monitor.didDrop()) {
                 const item = monitor.getDropResult();
-                console.log(item);
+                //console.log(item);
                 onMove(draggedProject.id, projectData.project.id);
             }
         },
