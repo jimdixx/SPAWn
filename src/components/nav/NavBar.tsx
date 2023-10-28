@@ -43,6 +43,7 @@ const NavBar = () => {
                     onChange={(event) => {
                         setSelectedConfiguration(event.target.value);
                         saveConfigurationNameToLocalstorage(event.target.value);
+                        window.dispatchEvent(new Event("configuration_changed"));
                     }}
                     value={selectedConfiguration}
                     className="ms-2 custom-select"

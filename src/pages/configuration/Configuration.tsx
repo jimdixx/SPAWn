@@ -1,15 +1,13 @@
-import React, {FormEvent, ReactNode, useState} from 'react';
+import React, { ReactNode, useState} from 'react';
 import {useQuery} from "react-query";
 import {fetchOneConfiguration, saveNewConfiguration,saveConfiguration} from "../../api/APIConfiguration";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {useNavigate} from "react-router-dom";
 import {getConfigurationNameFromLocalstorage} from "../../components/helperFunctions/ConfigurationSelectEvent";
 import Input from "../../components/input/Input";
-import {Row, Col, Container, Button, Alert} from 'react-bootstrap';
+import {Row, Col, Container, Button, Alert, Spinner} from 'react-bootstrap';
 import Form from "react-bootstrap/Form";
 import Section from "./Section";
-import AlertComponent from "../../components/alerts/AlertComponent";
-import {API_RESPONSE} from "../../components/api/ApiCaller";
 
 
 interface ConfigurationWrapper {
@@ -45,7 +43,7 @@ interface GenericAntipatternInterface<T> {
 interface AntiPatternsArrayThresholds {
     [key:string]: AntiPatterThresholds
 }
-interface formDataObject{
+interface formDataObject {
     [key:string]:string
 }
 interface AntiPatterns {
@@ -72,17 +70,17 @@ const Configuration = () => {
     /**
      * This method gets data about configuration which is chosen in nav bab
      * */
-    const fetchConfiguration = async () => {
+    const fetchConfiguration = async ()=> {
         const userName:string = retrieveUsernameFromStorage();
 
         setUserName(userName);
         const configurationId:string|undefined = getConfigurationNameFromLocalstorage();
 
-        if(!userName || !configurationId){
+        if (!userName || !configurationId) {
             return;
         }
         const response = await fetchOneConfiguration(userName, configurationId);
-        if(response.redirect) {
+        if (response.redirect) {
             navigate(response.redirect);
         }
         else {
@@ -100,7 +98,7 @@ const Configuration = () => {
     /**
      * Method which updates values in form on page
      * */
-    const formDataChange = (elementId:string,inputValue:string)=>{
+    const formDataChange = (elementId:string,inputValue:string)=> {
         const updatedForm = {...form, [elementId]:inputValue};
         setForm(updatedForm);
     }
@@ -109,15 +107,15 @@ const Configuration = () => {
      * Method to create content of Antipatterns collapsible element
      * */
     const createConfigurationAntipattern = (configThresHolds:ConfigThresholds[], antiPatterThresholds:AntiPatternsArrayThresholds):ReactNode => {
-        return configThresHolds.map((threshHold:ConfigThresholds, index:number)=> {
+        return configThresHolds.map((threshHold:ConfigThresholds, index:number) => {
             const antiPatternThresholdName : string = antiPatterThresholds[threshHold.thresholdName].printName;
             const antiPatternDescription: string = antiPatterThresholds[threshHold.thresholdName].description;
             return (
-                <Row >
-                    <Col sm={6}>
+                <Row key={threshHold.thresholdName}>
+                    <Col sm={6} key={antiPatternThresholdName}>
                         <Form.Label htmlFor={antiPatternThresholdName} className="col-form-label">{antiPatternThresholdName + ":"}</Form.Label>
                     </Col>
-                    <Col sm={6}>
+                    <Col sm={6} key={antiPatternDescription}>
                         <small defaultValue={threshHold.value}>{antiPatternDescription}</small>
                         <Input key={index} value={threshHold.value} onChange={formDataChange} type={"text"} placeholder={threshHold.value} id={threshHold.thresholdName}
                                name="thresholdValues"/>
@@ -130,16 +128,16 @@ const Configuration = () => {
     /**
      * Method to created headers of collapsible elements
      * */
-    const createConfigurationTable = ():ReactNode[] =>{
-        if(!data){
+    const createConfigurationTable = ():ReactNode[] => {
+        if (!data) {
             throw new Error("Configuration data not available");
         }
         const configurationDefinition: Configuration[] = data?.configuration;
-       return configurationDefinition.map((cfg:Configuration)=>{
+       return configurationDefinition.map((cfg:Configuration) => {
            const ant: AntiPatterns = data?.antiPatterns[cfg.antiPattern];
 
             return (
-                <div className="preferences">
+                <div className="preferences" key={ant.id}>
                     <Section title={ant.printName} defaultExpanded={false} sm={10}>
                         {createConfigurationAntipattern(cfg.thresholds, ant.thresholds)}
                     </Section>
@@ -152,9 +150,9 @@ const Configuration = () => {
      * Action on 'SAVE' and 'SAVE AS' buttons
      * It gets configuration, send it vis APIConfiguration and show result
      * */
-    const uploadNewConfiguration = async (event:any) =>{
+    const uploadNewConfiguration = async (event:any)=> {
         event.preventDefault();
-        if(!data){
+        if (!data) {
             throw new Error("Configuration data not available");
         }
         // console.log(typeof(event));
@@ -165,10 +163,10 @@ const Configuration = () => {
         updateConfiguration(configurationDefinition);
 
         
-        if(event.nativeEvent.submitter.id === SAVE_BUTTON_ID) { //update of configuration
+        if (event.nativeEvent.submitter.id === SAVE_BUTTON_ID) { //update of configuration
             const configurationId: string|undefined = getConfigurationNameFromLocalstorage();
 
-            if(configurationId === undefined){
+            if (configurationId === undefined) {
                 throw new Error("No configuration selected");
             }
             response = await saveConfiguration(userName,configurationId,configurationDefinition);
@@ -206,15 +204,20 @@ const Configuration = () => {
         });
     }
 
+    window.addEventListener('configuration_changed',async (event) => {
+        event.preventDefault();
+        await refetch();
+    })
+
     /**
      * Fill up form values from configuration
      * */
-    const setDefaultInputState = (configurationDefinitionWraper:ConfigurationDefinitionWrapper)=>{
-        const configurations = configurationDefinitionWraper.configuration;
+    const setDefaultInputState = (configurationDefinitionWrapper:ConfigurationDefinitionWrapper)=> {
+        const configurations = configurationDefinitionWrapper.configuration;
         const initialForm:formDataObject = {};
-        for(let i = 0; i < configurations.length; i++){
+        for (let i = 0; i < configurations.length; i++) {
             const tmp = configurations[i].thresholds;
-            for(let j = 0; j < tmp.length; j++){
+            for (let j = 0; j < tmp.length; j++) {
                 const thresholdName = tmp[j].thresholdName;
                 const value = tmp[j].value;
                 initialForm[thresholdName] = value;
@@ -229,49 +232,62 @@ const Configuration = () => {
      * */
     return (
         <div>
-            {status === "error" && <p>error</p>}
-            {status === "loading" && <p>vykresli kolecko z bootstrapu</p>}
-            {status === "success" &&
-                <Container className="justify-content-center align-items-center" >
-                    <Form onSubmit={uploadNewConfiguration}>
-                        <Form.Group>
-                            <h1>Configuration</h1>
-                            {createConfigurationTable()}
-                        </Form.Group>
-                        <Row>
-                            <Col sm={5}>
-                                <Button id={SAVE_BUTTON_ID} type={"submit"}>Save</Button>
-                            </Col>
+            {
+                isFetching ? (
+                    <div className={"text-center"}>
+                        <Spinner animation={"border"} variant={"primary"}/>
+                    </div>
+                ) : (
+                    status === "success" ? (
+                        <Container className="justify-content-center align-items-center" >
+                            <Form onSubmit={uploadNewConfiguration}>
+                                <Form.Group>
+                                    <h1>Configuration</h1>
+                                    {createConfigurationTable()}
+                                </Form.Group>
+                                <Row>
+                                    <Col sm={5}>
+                                        <Button id={SAVE_BUTTON_ID} type={"submit"}>Save</Button>
+                                    </Col>
 
-                            <Col sm={7}>
-                                <Button id={SAVE_AS_BUTTON_ID} type={"submit"} >Save as</Button>
-                                <Input value={configurationName} type={"text"} id={"save_as_name"}
-                                       name={"configuration_name"} placeholder={"New configuration name"} onChange={(elementId, value)=>{setConfiguratioName(value);}} />
-                            </Col>
-                        </Row>
-                    </Form>
-                    {
-                        errorMessage &&  (
-                            <Alert variant="danger" className="my-3">
-                                {errorMessage}
-                            </Alert>
-                        )
+                                    <Col sm={7}>
+                                        <Button id={SAVE_AS_BUTTON_ID} type={"submit"} >Save as</Button>
+                                        <Input value={configurationName} type={"text"}
+                                               id={"save_as_name"}
+                                               name={"configuration_name"} placeholder={"New configuration name"}
+                                               onChange={(elementId, value)=>
+                                               {setConfiguratioName(value);
+                                               }} />
+                                    </Col>
+                                </Row>
+                            </Form>
+                            {
+                                errorMessage &&  (
+                                    <Alert variant="danger" className="my-3">
+                                        {errorMessage}
+                                    </Alert>
+                                )
+                            }
+                            {
+                                successMessage &&  (
+                                    <Alert variant="success" className="my-3">
+                                        {successMessage}
+                                    </Alert>
+                                )
+                            }
 
-                    }
-                    {
-                        successMessage &&  (
-                            <Alert variant="success" className="my-3">
-                                {successMessage}
-                            </Alert>
-                        )
-                    }
-
-                </Container>
+                        </Container>
+                    ) : status === 'loading' ? (
+                        <div className={"text-center"}>
+                            <Spinner animation={"border"} variant={"primary"}/>
+                        </div>
+                    ) : (
+                        <p>error</p>
+                    )
+                )
             }
-
         </div>
     );
-    
 };
 
 export default Configuration;
