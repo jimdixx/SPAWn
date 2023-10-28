@@ -354,7 +354,7 @@ const Detect = () => {
             }
             {
                 loading ? (
-                    <div className={"text-center"}>
+                    <div className={"d-flex justify-content-center align-items-center"}>
                         <Spinner animation={"border"} variant={"primary"}/>
                     </div>
                 )
