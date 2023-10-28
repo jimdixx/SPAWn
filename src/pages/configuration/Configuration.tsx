@@ -58,9 +58,10 @@ interface AntiPatterns {
 const Configuration = () => {
     const SAVE_AS_BUTTON_ID: string = "SAVE_AS";
     const SAVE_BUTTON_ID: string = "SAVE";
-
     const navigate = useNavigate();
     const [form,setForm] = useState<formDataObject>({});
+    //use state variable used for reloading component without refreshing the page
+    const [seed, setSeed] = useState(1);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
@@ -92,7 +93,9 @@ const Configuration = () => {
             return configurationDefinitionWraper ;
         }
     }
-    const {data, status} = useQuery("configurations",fetchConfiguration,{ refetchOnWindowFocus: false});
+    const {data, status, refetch, isFetching } = useQuery(
+        "configurations", fetchConfiguration,
+        { refetchOnWindowFocus: false, enabled: true});
 
 
     /**
@@ -117,7 +120,7 @@ const Configuration = () => {
                     </Col>
                     <Col sm={6} key={antiPatternDescription}>
                         <small defaultValue={threshHold.value}>{antiPatternDescription}</small>
-                        <Input key={index} value={threshHold.value} onChange={formDataChange} type={"text"} placeholder={threshHold.value} id={threshHold.thresholdName}
+                        <Input value={threshHold.value} onChange={formDataChange} type={"text"} placeholder={threshHold.value} id={""+Math.random()+""}
                                name="thresholdValues"/>
                     </Col>
                 </Row>
