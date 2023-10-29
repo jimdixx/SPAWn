@@ -1,10 +1,10 @@
 import React, {useEffect, useState, useMemo, useCallback} from "react";
 import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
-import {fetchProjects, ProjectData} from "../../api/APIManagementProjects";
+import {fetchProjects, ProjectData, saveProjects} from "../../api/APIManagementProjects";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import Project from "../../components/manage/Project";
-import { Spinner, Container, Row, Col, Button, Form } from "react-bootstrap";
+import { Spinner, Container, Row, Col, Button, Form, Alert } from "react-bootstrap";
 import { Spin } from 'antd';
 
 const Projects = () => {
@@ -16,6 +16,9 @@ const Projects = () => {
     const [superProjectFakedId, setSuperProjectFakedId] = useState(-1);
     const [projectError, setProjectError] = useState("");
     const navigate = useNavigate();
+    const [isSaving, setIsSaving] = useState(false);
+    const [errMsg, setErrMsg] = useState('');
+    const [sucMsg, setSucMsg] = useState('');
 
     /*
      Fetching projects data
@@ -93,9 +96,9 @@ const Projects = () => {
         setSuperProjectDescription('');
     };
 
-    useEffect(() => {
-        console.log(projectData);
-    }, [projectData])
+    //useEffect(() => {
+    //    console.log(projectData);
+    //}, [projectData])
 
     const { error, data, status } = useQuery('projects', fetchData,{ refetchOnWindowFocus: false});
 
@@ -103,6 +106,9 @@ const Projects = () => {
      Handling drag and drop move of the project
     */
     const handleMove = (projectIdFrom: number, projectIdTo: number) => {
+        setErrMsg('');
+        setSucMsg('');
+
         let fromParent: ProjectData | undefined = undefined;
         let toParent: ProjectData | undefined = undefined;
 
@@ -215,20 +221,56 @@ const Projects = () => {
      Handling of edited projects data save
     */
     const handleSave = () => {
-        console.log("Saving data.");
-        //TODO: send projectData to SPADe
-    }
+            setErrMsg('');
+            setSucMsg('');
+
+            const userName = retrieveUsernameFromStorage();
+
+            if (!userName) {
+                return;
+            }
+
+            setUserName(userName);
+            setIsSaving(true);
+
+            saveProjects(userName, projectData[0].children)
+                .then(response => {
+                    setSucMsg('Projects structure saved successfully.');
+                })
+                .catch(error => {
+                    setErrMsg('Projects structure save failed.');
+                })
+                .finally(() => {
+                    setIsSaving(false);
+                });
+        }
 
     return (
         <Container>
+            {errMsg && (
+                <Alert variant="danger" className="my-3">
+                    {errMsg}
+                </Alert>
+            )}
+            {sucMsg && (
+                <Alert variant="success" className="my-3">
+                    {sucMsg}
+                </Alert>
+            )}
             <h3>Projects</h3>
             <Container>
-                <Button
-                    variant="primary"
-                    onClick={handleSave}
-                >
+                {!isSaving && <Button
+                   variant="primary"
+                   onClick={handleSave}
+                   disabled={isSaving}>
                     Save Projects Structure
-                </Button>
+                 </Button>
+                }
+                {isSaving &&
+                    <Spinner animation="border" role="status">
+                                  <span className="sr-only">Loading...</span>
+                    </Spinner>
+                }
             </Container>
             <Form>
                 <Container>
@@ -238,9 +280,15 @@ const Projects = () => {
                         </div>
                     ) : (
                         <>
-                            {projectData.map((project, index) => (
+                            {projectData && projectData.length > 0 ? (
+                              projectData.map((project, index) => (
                                 <Project key={index} projectData={project} level={0} onMove={handleMove} />
-                            ))}
+                              ))
+                            ) : (
+                              <div className={"text-center text-danger"}>
+                                 No projects found
+                              </div>
+                            )}
 
                             <Container className="justify-content-center mt-5" style={{maxWidth: '50%'}}>
                                 <Row className="text-center">
