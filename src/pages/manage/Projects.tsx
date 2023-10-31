@@ -17,6 +17,7 @@ const Projects = () => {
     const [projectError, setProjectError] = useState("");
     const navigate = useNavigate();
     const [isSaving, setIsSaving] = useState(false);
+    const [wasChanged, setWasChanged] = useState(false);
     const [errMsg, setErrMsg] = useState('');
     const [sucMsg, setSucMsg] = useState('');
 
@@ -64,6 +65,25 @@ const Projects = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+      const handleLeavePage = (e: BeforeUnloadEvent) => {
+        if (wasChanged) {
+          e.preventDefault();
+          e.returnValue = 'Máte neuložené změny. Opravdu chcete opustit tuto stránku?';
+        }
+      };
+
+      // Připojení zachytávání pokusu o opuštění stránky
+      window.addEventListener('beforeunload', handleLeavePage);
+
+      // Odpojení zachytávání při odmontování komponenty
+      return () => {
+        window.removeEventListener('beforeunload', handleLeavePage);
+      };
+    }, [wasChanged]);
+
+
 
     /*
       Create new superproject
@@ -215,6 +235,7 @@ const Projects = () => {
             }
 
         }
+        setWasChanged(true);
     };
 
     /*
@@ -242,6 +263,7 @@ const Projects = () => {
                 })
                 .finally(() => {
                     setIsSaving(false);
+                    setWasChanged(false);
                 });
         }
 
@@ -262,7 +284,7 @@ const Projects = () => {
                 {!isSaving && <Button
                    variant="primary"
                    onClick={handleSave}
-                   disabled={isSaving}>
+                   disabled={isSaving || !wasChanged}>
                     Save Projects Structure
                  </Button>
                 }

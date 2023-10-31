@@ -3,6 +3,8 @@ import {useDrop, useDrag} from 'react-dnd';
 import {ProjectData} from "../../api/APIManagementProjects";
 import { Card } from 'antd';
 import {Container} from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
 const { Meta } = Card;
 
 interface ProjectProps {
@@ -39,13 +41,13 @@ const Project: React.FC<ProjectProps> = React.memo(({projectData, level, onMove}
             <Card
                 // root card (faked parent project with id 0) not hoverable
                 hoverable={projectData.project.id !== 0}
-                style={{
-                    marginBottom: '0.5%',
-                }}
                 ref={(node: HTMLDivElement) => { ref(node); drop(node); }}
             >
+                {projectData.project.id !== 0 && (
+                        <FontAwesomeIcon icon={faUpDownLeftRight} style={{ marginLeft: 'auto' }} />
+                )}
                 <Meta
-                    title={projectData.project.name}
+                    title={<span style={{ marginLeft: '1em' }}>{projectData.project.name}</span>}
                     // description={projectData.project.description}
                 />
                 {projectData.children.length > 0 && (
