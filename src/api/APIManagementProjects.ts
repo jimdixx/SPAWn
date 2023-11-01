@@ -1,7 +1,7 @@
 import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../components/api/ApiCaller";
 
-const PROJECT_URL = "http://localhost:8080/v2/management/projects"
-const SAVE_PROJECTS_URL = "http://localhost:8080/v2/management/saveProjects"
+const PROJECT_URL = "management/projects"
+const SAVE_PROJECTS_URL = "management/saveProjects"
 
 export interface ProjectData {
     project: {

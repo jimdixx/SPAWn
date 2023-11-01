@@ -21,9 +21,8 @@ const Projects = () => {
     const [errMsg, setErrMsg] = useState('');
     const [sucMsg, setSucMsg] = useState('');
 
-    /*
-     Fetching projects data
-    */
+
+    // Fetching projects data
     const fetchData = async () => {
         const userName:string = retrieveUsernameFromStorage();
 
@@ -40,6 +39,7 @@ const Projects = () => {
         } else {
             let fetchedData = response.response.data as ProjectData[];
 
+            // Create a fake root project for the top-level hierarchy
             const fakeParent = {
                 project: {
                     id: 0,
@@ -66,18 +66,17 @@ const Projects = () => {
         }
     };
 
+    // Prompting unsaved changes warning before leaving the page
     useEffect(() => {
       const handleLeavePage = (e: BeforeUnloadEvent) => {
         if (wasChanged) {
           e.preventDefault();
-          e.returnValue = 'Máte neuložené změny. Opravdu chcete opustit tuto stránku?';
+          e.returnValue = 'You have unsaved changes. Are you sure you want to leave this page?';
         }
       };
 
-      // Připojení zachytávání pokusu o opuštění stránky
       window.addEventListener('beforeunload', handleLeavePage);
 
-      // Odpojení zachytávání při odmontování komponenty
       return () => {
         window.removeEventListener('beforeunload', handleLeavePage);
       };
@@ -85,9 +84,7 @@ const Projects = () => {
 
 
 
-    /*
-      Create new superproject
-    */
+    //  Create a new superproject
     const addSuperProject = () => {
         if (!superProjectName && !superProjectDescription) {
             setProjectError("Fill all the fields!");
@@ -116,15 +113,10 @@ const Projects = () => {
         setSuperProjectDescription('');
     };
 
-    //useEffect(() => {
-    //    console.log(projectData);
-    //}, [projectData])
-
+    // Query for fetching project data
     const { error, data, status } = useQuery('projects', fetchData,{ refetchOnWindowFocus: false});
 
-    /*
-     Handling drag and drop move of the project
-    */
+    // Handling drag and drop to move a project
     const handleMove = (projectIdFrom: number, projectIdTo: number) => {
         setErrMsg('');
         setSucMsg('');
@@ -132,7 +124,7 @@ const Projects = () => {
         let fromParent: ProjectData | undefined = undefined;
         let toParent: ProjectData | undefined = undefined;
 
-        // project cannot be dropped on itself
+        // Project cannot be dropped on itself
         if (projectIdFrom === projectIdTo) {
             //console.log("Project dropped on itself");
             return;
@@ -174,11 +166,13 @@ const Projects = () => {
 
         let updatedData = [...projectData];
 
+        // Trying to find project in the root projects
         fromParent = updatedData.find(item => item.project.id === projectIdFrom);
         toParent = updatedData.find(item => item.project.id === projectIdTo);
 
         let isProjectFromRoot = false;
 
+        // If from project is not from the root, then use bfs to find it (its parent)
         if (!fromParent) {
             for (let i = 0; i < updatedData.length; i++) {
                 fromParent = bfsTreeSearch(updatedData[i], projectIdFrom);
@@ -190,13 +184,13 @@ const Projects = () => {
             isProjectFromRoot = true;
         }
 
-        // project cannot be dropped on its direct parent
+        // Move condition: Project cannot be dropped on its direct parent
         if (projectIdTo === fromParent?.project.id) {
             //console.log("Project dropped on its direct parent.");
             return;
         }
 
-        // project cannot be dropped on its descendant
+        // Move condition: Project cannot be dropped on its descendant
         if (fromParent) {
             let projectFrom: ProjectData | undefined = fromParent?.children?.find(item => item.project.id === projectIdFrom);
             if (projectFrom) {
@@ -207,6 +201,7 @@ const Projects = () => {
             }
         }
 
+        // If to project is not from the root, then use bfs to find it (its parent)
         if (!toParent) {
             for (let i = 0; i < updatedData.length; i++) {
                 toParent = bfsTreeSearch(updatedData[i], projectIdTo);
@@ -217,6 +212,7 @@ const Projects = () => {
             toParent = toParent?.children?.find(e => e.project.id === projectIdTo);
         }
 
+        // Perform move and update the project data
         if (isProjectFromRoot) {
             if (toParent && fromParent) {
                 toParent.children.push(fromParent);
@@ -238,34 +234,31 @@ const Projects = () => {
         setWasChanged(true);
     };
 
-    /*
-     Handling of edited projects data save
-    */
+    // Handling saving edited project data
     const handleSave = () => {
-            setErrMsg('');
-            setSucMsg('');
+        setErrMsg('');
+        setSucMsg('');
 
-            const userName = retrieveUsernameFromStorage();
-
-            if (!userName) {
-                return;
-            }
-
-            setUserName(userName);
-            setIsSaving(true);
-
-            saveProjects(userName, projectData[0].children)
-                .then(response => {
-                    setSucMsg('Projects structure saved successfully.');
-                })
-                .catch(error => {
-                    setErrMsg('Projects structure save failed.');
-                })
-                .finally(() => {
-                    setIsSaving(false);
-                    setWasChanged(false);
-                });
+        const userName = retrieveUsernameFromStorage();
+        if (!userName) {
+            return;
         }
+
+        setUserName(userName);
+        setIsSaving(true);
+
+        saveProjects(userName, projectData[0].children)
+            .then(response => {
+                setSucMsg('Projects structure saved successfully.');
+            })
+            .catch(error => {
+                setErrMsg('Projects structure save failed.');
+            })
+            .finally(() => {
+                setIsSaving(false);
+                setWasChanged(false);
+            });
+    }
 
     return (
         <Container>
