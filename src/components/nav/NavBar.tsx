@@ -10,6 +10,7 @@ import {useQuery} from "react-query";
 import Form from 'react-bootstrap/Form';
 import {useNavigate} from "react-router-dom";
 import {Spinner} from 'react-bootstrap';
+import {ConfigurationEntry} from "../../pages/configuration/Configuration"
 import "./style.css"
 
 import {
@@ -56,6 +57,16 @@ const NavBar = () => {
 
     }
 
+    useEffect(() => {
+        window.addEventListener('configuration_add',(event:any) => {
+            event.preventDefault();
+            refetch().then(() => {
+                setSelectedConfiguration(event.id);
+                saveConfigurationNameToLocalstorage(event.id);
+            });
+        })
+    },[])
+
     // fetch configuration names from server to be rendered in select
     const fetchConfigurationName = async () => {
         const response = await fetchConfigurationNames(userName);
@@ -74,7 +85,10 @@ const NavBar = () => {
         setUserName(userName);
     }
 
-    const {data, status} = useQuery("configuration_names", fetchConfigurationName, {
+
+    const {data, status, refetch, isFetching} = useQuery(
+        "configuration_names", fetchConfigurationName,
+        {
         refetchOnWindowFocus: false,
         enabled: !!userName
     });

@@ -1,4 +1,4 @@
-import React, { ReactNode, useState} from 'react';
+import React, { ReactNode, useState,useEffect} from 'react';
 import {useQuery} from "react-query";
 import {fetchOneConfiguration, saveNewConfiguration,saveConfiguration} from "../../api/APIConfiguration";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
@@ -13,6 +13,11 @@ import Section from "./Section";
 interface ConfigurationWrapper {
     configuration:string
     antiPatterns:any
+}
+
+export interface ConfigurationEntry {
+    name: string,
+    id: string
 }
 
 interface ConfigurationDefinitionWrapper {
@@ -187,7 +192,7 @@ const Configuration = () => {
             setSuccessMessage(responseData.message);
             setErrorMessage("");
         } else { //error state
-            setErrorMessage(`Configuration could not be created: ${responseData.message}`)
+            setErrorMessage(`Configuration could nconfiguration_addt be created: ${responseData.message}`)
             setSuccessMessage("");
         }
 
@@ -205,10 +210,13 @@ const Configuration = () => {
         });
     }
 
-    window.addEventListener('configuration_changed',async (event) => {
-        event.preventDefault();
-        await refetch();
-    })
+    useEffect(()=> {
+        window.addEventListener('configuration_changed',async (event) => {
+            event.preventDefault();
+            await refetch();
+        });
+    },[])
+
 
     /**
      * Fill up form values from configuration
