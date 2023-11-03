@@ -64,7 +64,6 @@ const Configuration = () => {
     const [seed, setSeed] = useState(1);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-
     const [configurationName, setConfiguratioName] = useState<string>("");
     const [userName, setUserName] = useState<string>("");
 
@@ -97,7 +96,6 @@ const Configuration = () => {
         "configurations", fetchConfiguration,
         { refetchOnWindowFocus: false, enabled: true});
 
-
     /**
      * Method which updates values in form on page
      * */
@@ -120,7 +118,7 @@ const Configuration = () => {
                     </Col>
                     <Col sm={6} key={antiPatternDescription}>
                         <small defaultValue={threshHold.value}>{antiPatternDescription}</small>
-                        <Input value={threshHold.value} onChange={formDataChange} type={"text"} placeholder={threshHold.value} id={""+Math.random()+""}
+                       <Input value={threshHold.value} onChange={formDataChange} type={"text"} placeholder={threshHold.value} id={threshHold.thresholdName}
                                name="thresholdValues"/>
                     </Col>
                 </Row>
@@ -158,13 +156,11 @@ const Configuration = () => {
         if (!data) {
             throw new Error("Configuration data not available");
         }
-        // console.log(typeof(event));
 
         const configurationDefinition: Configuration[] = data?.configuration;
         let response;
         let responseData;
         updateConfiguration(configurationDefinition);
-
         
         if (event.nativeEvent.submitter.id === SAVE_BUTTON_ID) { //update of configuration
             const configurationId: string|undefined = getConfigurationNameFromLocalstorage();
@@ -173,17 +169,19 @@ const Configuration = () => {
                 throw new Error("No configuration selected");
             }
             response = await saveConfiguration(userName,configurationId,configurationDefinition);
-            responseData = response.response.data as {message:string};
+            responseData = response.response.data as {message:string, id:string};
                 
         } else { //creation off new configuration
             response = await saveNewConfiguration(userName,configurationName,configurationDefinition);
-            responseData = response.response.data as {message:string};
+            responseData = response.response.data as {message:string, id:string};
         }
-
         
         if (response?.response.status === 201) { //configuration created
             setSuccessMessage(`Configuration with name ${configurationName} created`);
             setErrorMessage("");
+            event = new Event("configuration_add");
+            event.id = responseData.id;
+            window.dispatchEvent(event);
         }
         else if (response?.response.status === 200) { //configuration updated
             setSuccessMessage(responseData.message);
