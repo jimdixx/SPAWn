@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import {useIsAuthenticated} from "react-auth-kit";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
@@ -9,6 +10,7 @@ import {useQuery} from "react-query";
 import Form from 'react-bootstrap/Form';
 import {useNavigate} from "react-router-dom";
 import {Spinner} from 'react-bootstrap';
+import {ConfigurationEntry} from "../../pages/configuration/Configuration"
 import "./style.css"
 
 import {
@@ -42,6 +44,7 @@ const NavBar = () => {
                     onChange={(event) => {
                         setSelectedConfiguration(event.target.value);
                         saveConfigurationNameToLocalstorage(event.target.value);
+                        window.dispatchEvent(new Event("configuration_changed"));
                     }}
                     value={selectedConfiguration}
                     className="ms-2 custom-select"
@@ -53,6 +56,16 @@ const NavBar = () => {
         );
 
     }
+
+    useEffect(() => {
+        window.addEventListener('configuration_add',(event:any) => {
+            event.preventDefault();
+            refetch().then(() => {
+                setSelectedConfiguration(event.id);
+                saveConfigurationNameToLocalstorage(event.id);
+            });
+        })
+    },[])
 
     // fetch configuration names from server to be rendered in select
     const fetchConfigurationName = async () => {
@@ -73,7 +86,10 @@ const NavBar = () => {
         setUserName(userName);
     }
 
-    const {data, status} = useQuery("configuration_names", fetchConfigurationName, {
+
+    const {data, status, refetch, isFetching} = useQuery(
+        "configuration_names", fetchConfigurationName,
+        {
         refetchOnWindowFocus: false,
         enabled: !!userName
     });
@@ -112,12 +128,25 @@ const NavBar = () => {
             <Container fluid>
                 <Navbar.Brand href="/"> <i className={"fas fa-chevron-left"}/>{" SPADe Software "} <i
                     className={"fas fa-chevron-right"}/></Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-                <Navbar.Collapse id="basic-navbar-nav">
+                <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+                <Navbar.Collapse id="responsive-navbar-nav text-white">
                     <Nav className="me-auto text-white">
                         <Nav.Link href="/detect" className="text-white">Detect</Nav.Link>
                         <Nav.Link href="/configuration" className="text-white">Configuration</Nav.Link>
                         <Nav.Link href="/about" className="text-white">About</Nav.Link>
+                        <NavDropdown title="Manage" id="collapsible-nav-dropdown" className="text-white" style={{
+                            color: "white !important"
+                        }}>
+                            <NavDropdown.Item href="/project">Project</NavDropdown.Item>
+                            <NavDropdown.Item href="/person">Person</NavDropdown.Item>
+                            <NavDropdown.Item href="/enums">Enums</NavDropdown.Item>
+                            <NavDropdown.Item href="/categories">Categories</NavDropdown.Item>
+                            <NavDropdown.Item href="/iterations">Iterations and Phases</NavDropdown.Item>
+                            <NavDropdown.Item href="/activities">Activities</NavDropdown.Item>
+                            <NavDropdown.Item href="/release">Release</NavDropdown.Item>
+                            <NavDropdown.Divider />
+                            <NavDropdown.Item href="/signpost">Signpost</NavDropdown.Item>
+                        </NavDropdown>
                     </Nav>
                     {
                         data && isAuthenticated ?
