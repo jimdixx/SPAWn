@@ -1,6 +1,6 @@
 import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../components/api/ApiCaller";
 
-const PROJECT_URL = "management/projects"
+const PROJECT_URL = "management/projectsHierarchy"
 const SAVE_PROJECTS_URL = "management/saveProjects"
 
 export interface ProjectData {
