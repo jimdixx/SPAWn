@@ -19,6 +19,7 @@ const Person = () => {
     const [showMergeModal, setShowMergeModal] = useState(false);
     const [selectedPersons, setSelectedPersons] = useState<Persons[]>([]);
     const [selectedRadio, setSelectedRadio] = useState(1);
+    const [isAnyCheckboxSelected, setIsAnyCheckboxSelected] = useState(false);
     const navigate = useNavigate();
 
     // Fetching projects data
@@ -92,12 +93,17 @@ const Person = () => {
     const handleCheckboxChange = (personIndex: number) => {
         setSelectedRows(prevSelectedRows => {
             if (prevSelectedRows.includes(personIndex)) {
-                return prevSelectedRows.filter(index => index !== personIndex);
+                const updatedRows = prevSelectedRows.filter(index => index !== personIndex);
+                setIsAnyCheckboxSelected(updatedRows.length > 0);
+                return updatedRows;
             } else {
-                return [...prevSelectedRows, personIndex];
+                const updatedRows = [...prevSelectedRows, personIndex];
+                setIsAnyCheckboxSelected(true);
+                return updatedRows;
             }
         });
     };
+
 
     useEffect(() => {
         console.log(selectedRows);
@@ -109,22 +115,32 @@ const Person = () => {
         setShowMergeModal(false);
     };
 
-    const handleCreatePersonSubmit = (selectedData: Persons[]) => {
-        console.log("Create person with selected people:", selectedData);
+    const handleCreatePersonSubmit = () => {
+        console.log("Create person with selected people:", selectedPersons);
         handleCloseMergeModal();
     };
+
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (selectedRows.length > 0) {
+                const message = "You have unsaved changes. Are you sure you want to leave?";
+                event.returnValue = message;
+                return message;
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [selectedRows]);
 
     const handleMergeSelected = () => {
         const selectedData = selectedRows.map(index => filteredPeople[index]);
         setShowMergeModal(true);
         console.log("Selected Data:", selectedData);
     };
-
-    const handleModalButtonClick = () => {
-        // Handle modal button click here
-    };
-
-
 
     function radioSelection(number: number) {
         console.log("radioSelection");
@@ -177,6 +193,7 @@ const Person = () => {
                   data-bs-toggle="modal"
                   data-bs-target="#newPerson"
                   onClick={handleMergeSelected}
+                  disabled={!isAnyCheckboxSelected}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="bi bi-plus-square mb-1" viewBox="0 0 16 16">
                       <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
@@ -247,10 +264,10 @@ const Person = () => {
                                     </select>
                                 )}
                             </div>
-                            <p id="countedChecked"></p>
+                            <p>All selected entries ({selectedRows.length}) will be assign to this object</p>
                         </div>
                         <div className="modal-footer">
-                            <button type="submit" className="btn btn-primary" name="submitId" value="defaultValue">Create person with selected people</button>
+                            <button type="submit" className="btn btn-primary" name="submitId" value="defaultValue" onClick={handleCreatePersonSubmit}>Create person with selected people</button>
                         </div>
                     </div>
                 </div>
