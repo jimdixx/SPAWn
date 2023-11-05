@@ -15,6 +15,10 @@ const Person = () => {
     const [userName, setUserName] = useState<string>("");
     const [isProjectSelected, setIsProjectSelected] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const [showMergeModal, setShowMergeModal] = useState(false);
+    const [selectedPersons, setSelectedPersons] = useState<Persons[]>([]);
+    const [selectedRadio, setSelectedRadio] = useState(1);
     const navigate = useNavigate();
 
     // Fetching projects data
@@ -85,24 +89,50 @@ const Person = () => {
         console.log(value);
     }
 
+    const handleCheckboxChange = (personIndex: number) => {
+        setSelectedRows(prevSelectedRows => {
+            if (prevSelectedRows.includes(personIndex)) {
+                return prevSelectedRows.filter(index => index !== personIndex);
+            } else {
+                return [...prevSelectedRows, personIndex];
+            }
+        });
+    };
+
+    useEffect(() => {
+        console.log(selectedRows);
+        const updateSelectedPersons = selectedRows.map(index => filteredPeople[index]);
+        setSelectedPersons(updateSelectedPersons);
+    }, [selectedRows, filteredPeople]);
+
+    const handleCloseMergeModal = () => {
+        setShowMergeModal(false);
+    };
+
+    const handleCreatePersonSubmit = (selectedData: Persons[]) => {
+        console.log("Create person with selected people:", selectedData);
+        handleCloseMergeModal();
+    };
+
+    const handleMergeSelected = () => {
+        const selectedData = selectedRows.map(index => filteredPeople[index]);
+        setShowMergeModal(true);
+        console.log("Selected Data:", selectedData);
+    };
+
     const handleModalButtonClick = () => {
         // Handle modal button click here
     };
 
-    const handleRadioSelection = () => {
-        // Handle radio selection here
-    };
 
-    const handleCreatePersonSubmit = (event: any) => {
-        event.preventDefault();
-        // Handle create person form submission here
-    };
 
     function radioSelection(number: number) {
         console.log("radioSelection");
+        setSelectedRadio(number);
     }
 
     return (
+
         <Container>
             {errorMessage && (
                 <Alert variant="danger" className="my-3">
@@ -146,6 +176,7 @@ const Person = () => {
                   id="modalButton"
                   data-bs-toggle="modal"
                   data-bs-target="#newPerson"
+                  onClick={handleMergeSelected}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="bi bi-plus-square mb-1" viewBox="0 0 16 16">
                       <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
@@ -185,17 +216,36 @@ const Person = () => {
                         </div>
                         <div className="modal-body">
                             <div>
-                                <input type="radio" name="radioBtn" onInput={() => radioSelection(1)} id="radio_1" value="0" />
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(1)} id="radio_1" value="0" />
                                 <label htmlFor="radio_1">Write new</label>
-                                <input type="radio" name="radioBtn" onInput={() => radioSelection(2)} id="radio_2" value="1" className="ms-2" />
-                                <label htmlFor="radio_2">Select from identities</label>
-                                <input type="radio" name="radioBtn" onInput={() => radioSelection(3)} id="radio_3" value="2" className="ms-2" />
-                                <label htmlFor="radio_3">Select from people</label>
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(2)} id="radio_2" value="1" className="ms-2" />
+                                <label htmlFor="radio_2">Select from people</label>
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(3)} id="radio_3" value="2" className="ms-2" />
+                                <label htmlFor="radio_3">Select from identities</label>
                             </div>
                             <div className="d-flex mb-2 mt-2">
-                                <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name" />
-                                <select className="form-control" id="selectName" name="personName"></select>
-                                <select className="form-control" id="selectPerson" name="personName"></select>
+                                {selectedRadio === 1 && (
+                                    <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name" />
+                                )}
+                                {(selectedRadio === 2 || selectedRadio === 3) && (
+                                    <select className="form-control" id="selectName" name="personName">
+                                        {selectedRadio === 2 ? (
+                                            selectedPersons.map((person, index) => (
+                                                <option key={index} value={index}>
+                                                    {person.name}
+                                                </option>
+                                            ))
+                                        ) : (
+                                            selectedPersons.map((person, personIndex) => (
+                                                person.identities.map((identity, index) => (
+                                                    <option key={`${person.name}_${index}`} value={`${personIndex}_${index}`}>
+                                                        {identity.name}
+                                                    </option>
+                                                ))))
+                                        )
+                                        }
+                                    </select>
+                                )}
                             </div>
                             <p id="countedChecked"></p>
                         </div>
@@ -229,7 +279,7 @@ const Person = () => {
                                     <td rowSpan={person.identities.length} className="align-middle rowspanLabel">
                                         <div className="d-flex col-md-12 justify-content-between">
                                             <div className="d-flex justify-content-left">
-                                                <input type="checkbox" className="form-check-input" name="selectedBox" value={personIndex} id={`person_${personIndex}`} />
+                                                <input type="checkbox" className="form-check-input" name="selectedBox" value={personIndex} onChange={() => handleCheckboxChange(personIndex)} id={`person_${personIndex}`} />
                                                 <label className="custom-control-label ms-2 personLabel" style={{ fontSize: '0.75em' }} htmlFor={`person_${personIndex}`}>{person.name}</label>
                                             </div>
                                             <button type="submit" className="btn btn-sm btn-outline-primary" name="submitId" value={personIndex}>
