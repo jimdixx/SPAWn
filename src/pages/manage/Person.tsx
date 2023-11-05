@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, ChangeEvent} from "react";
 import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects, Persons, Identity} from "../../api/APIManagementPerson";
@@ -11,8 +11,10 @@ const Person = () => {
     const [projects, setProjects] = useState<Projects[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<number>();
     const [people, setPeople] = useState<Persons[]>([]);
+    const [filteredPeople, setFilteredPeople] = useState<Persons[]>([]);
     const [userName, setUserName] = useState<string>("");
     const [isProjectSelected, setIsProjectSelected] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     // Fetching projects data
@@ -52,6 +54,7 @@ const Person = () => {
         } else {
             let fetchedData = response.response.data as Persons[];
             setPeople(fetchedData);
+            setFilteredPeople(fetchedData);
         }
     };
 
@@ -71,9 +74,16 @@ const Person = () => {
         }
       }, [selectedProjectId]);
 
-    const handleFilterSearch = () => {
-        // Handle filter search here
-    };
+    useEffect(() => {
+        const filteredPeople = searchQuery ? people.filter(person => person.name.toLowerCase().includes(searchQuery.toLowerCase())) : people;
+        setFilteredPeople(filteredPeople);
+    }, [searchQuery, people])
+
+    const handleFilterSearch = (event: ChangeEvent<HTMLInputElement>) => {
+        const { value } = event.target;
+        setSearchQuery(value);
+        console.log(value);
+    }
 
     const handleModalButtonClick = () => {
         // Handle modal button click here
@@ -150,6 +160,7 @@ const Person = () => {
                           type="text"
                           placeholder="Search"
                           id="filterSearch"
+                          onChange={handleFilterSearch}
                         />
                         {
                         // onKeyUp handler can be added here for the "findEntries" functionality
@@ -211,7 +222,7 @@ const Person = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {people.map((person, personIndex) => (
+                    {filteredPeople.map((person, personIndex) => (
                         person.identities.map((identity, index) => (
                             <tr key={`${person.name}_${index}`} className="entryLabel">
                                 {index === 0 && (
