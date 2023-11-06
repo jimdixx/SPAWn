@@ -8,6 +8,7 @@ import {Container, Button, Alert, Form, Col, InputGroup, FormControl} from "reac
 const Person = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [fieldIsRequired, setFieldIsRequired] = useState(false);
     const [projects, setProjects] = useState<Projects[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<number>();
     const [people, setPeople] = useState<Persons[]>([]);
@@ -84,6 +85,10 @@ const Person = () => {
         setFilteredPeople(filteredPeople);
     }, [searchQuery, people])
 
+    useEffect(() => {
+        setFieldIsRequired(false);
+    }, [selectedRadio, showMergeModal])
+
     const handleFilterSearch = (event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
         setSearchQuery(value);
@@ -117,6 +122,34 @@ const Person = () => {
 
     const handleCreatePersonSubmit = () => {
         console.log("Create person with selected people:", selectedPersons);
+        if (selectedRadio === 1) {
+           // "Write new" is selected
+           const inputElement = document.getElementById("inputName") as HTMLInputElement;
+           const newName = inputElement.value;
+
+           if (newName.length === 0) {
+               setFieldIsRequired(true);
+               return;
+           }
+
+           //TODO send to API
+        }
+        else if (selectedRadio === 2 || selectedRadio === 3) {
+            // "Select from people/identities" is selected
+            const selectElement = document.getElementById("selectName") as HTMLSelectElement;
+            var selectedIndex;
+            if (selectedRadio === 2) {
+                selectedIndex = selectElement.selectedIndex;
+            }
+            else {
+                const [selectedPersonIndex] = selectElement.value.split('_');
+                selectedIndex = parseInt(selectedPersonIndex, 10);
+            }
+            const selectedPerson = selectedPersons[selectedIndex];
+            console.log("Selected person:", selectedPerson);
+
+            //TODO send to API
+        }
         handleCloseMergeModal();
     };
 
@@ -233,13 +266,16 @@ const Person = () => {
                         </div>
                         <div className="modal-body">
                             <div>
-                                <input type="radio" name="radioBtn" onChange={() => radioSelection(1)} id="radio_1" value="0" />
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(1)} id="radio_1" value="0" className="me-1"/>
                                 <label htmlFor="radio_1">Write new</label>
-                                <input type="radio" name="radioBtn" onChange={() => radioSelection(2)} id="radio_2" value="1" className="ms-2" />
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(2)} id="radio_2" value="1" className="ms-2 me-1" />
                                 <label htmlFor="radio_2">Select from people</label>
-                                <input type="radio" name="radioBtn" onChange={() => radioSelection(3)} id="radio_3" value="2" className="ms-2" />
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(3)} id="radio_3" value="2" className="ms-2 me-1" />
                                 <label htmlFor="radio_3">Select from identities</label>
                             </div>
+                            {fieldIsRequired && (
+                                <div className="text-danger mt-1">This field is required.</div>
+                            )}
                             <div className="d-flex mb-2 mt-2">
                                 {selectedRadio === 1 && (
                                     <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name" />
