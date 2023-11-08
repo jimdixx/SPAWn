@@ -2,6 +2,7 @@ import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../components/api/ApiCalle
 
 const PROJECTS_URL = "management/projectsList";
 const PERSONS_URL = "management/personsFromProject";
+const MERGE_PERSONS_URL = "management/mergePersons";
 
 export interface Projects {
     id: number,
@@ -34,3 +35,20 @@ export const fetchPersons = async (username?:string, prjId?:number): Promise<API
     };
     return await ApiCaller(data, PERSONS_URL, HTTP_METHOD.POST);
 }
+
+export const mergePersons = (project: number, personsToMerge: Persons[], personToMergeIn?: Persons, newName?: string): Promise<API_RESPONSE> => {
+    const data: any = {
+      projectId: project,
+      persons: personsToMerge,
+    };
+
+    if (personToMergeIn !== undefined) {
+      data.person = personToMergeIn;
+    }
+
+    if (newName !== undefined) {
+      data.newPersonName = newName;
+    }
+
+    return ApiCaller(data, MERGE_PERSONS_URL, HTTP_METHOD.POST);
+};

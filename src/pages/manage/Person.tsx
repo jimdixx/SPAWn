@@ -1,7 +1,7 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
 import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
-import {fetchProjects, fetchPersons, Projects, Persons, Identity} from "../../api/APIManagementPerson";
+import {fetchProjects, fetchPersons, Projects, Persons, Identity, mergePersons} from "../../api/APIManagementPerson";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {Container, Button, Alert, Form, Col, InputGroup, FormControl} from "react-bootstrap";
 
@@ -78,6 +78,8 @@ const Person = () => {
         if (selectedProjectId) {
             fetchPersonsData();
         }
+        setSelectedRows([]);
+        setIsAnyCheckboxSelected(false);
       }, [selectedProjectId]);
 
     useEffect(() => {
@@ -88,6 +90,11 @@ const Person = () => {
     useEffect(() => {
         setFieldIsRequired(false);
     }, [selectedRadio, showMergeModal])
+
+    useEffect(() => {
+        setSuccessMessage("");
+        setErrorMessage("");
+    }, [selectedProjectId, searchQuery])
 
     const handleFilterSearch = (event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
@@ -109,7 +116,6 @@ const Person = () => {
         });
     };
 
-
     useEffect(() => {
         console.log(selectedRows);
         const updateSelectedPersons = selectedRows.map(index => filteredPeople[index]);
@@ -117,11 +123,19 @@ const Person = () => {
     }, [selectedRows, filteredPeople]);
 
     const handleCloseMergeModal = () => {
-        setShowMergeModal(false);
+        const closeButton = document.querySelector('#newPerson button[data-bs-dismiss="modal"]') as HTMLButtonElement | null;
+
+        if (closeButton) {
+          closeButton.click();
+        }
     };
 
-    const handleCreatePersonSubmit = () => {
-        console.log("Create person with selected people:", selectedPersons);
+    const handleCreatePersonSubmit = async () => {
+        var response;
+        if (selectedProjectId === undefined) {
+            setErrorMessage("Projects was not correctly set");
+            return;
+        }
         if (selectedRadio === 1) {
            // "Write new" is selected
            const inputElement = document.getElementById("inputName") as HTMLInputElement;
@@ -132,7 +146,7 @@ const Person = () => {
                return;
            }
 
-           //TODO send to API
+           response = await mergePersons(selectedProjectId, selectedPersons, undefined, newName);
         }
         else if (selectedRadio === 2 || selectedRadio === 3) {
             // "Select from people/identities" is selected
@@ -148,26 +162,20 @@ const Person = () => {
             const selectedPerson = selectedPersons[selectedIndex];
             console.log("Selected person:", selectedPerson);
 
-            //TODO send to API
+            response = await mergePersons(selectedProjectId, selectedPersons, selectedPerson, undefined);
         }
-        handleCloseMergeModal();
+
+        await fetchPersonsData();
+        await handleCloseMergeModal();
+        await setSelectedRows([]);
+
+        if (response?.response?.status === 200) {
+            setSuccessMessage(response?.response?.data as string);
+        }
+        else {
+            setErrorMessage(response?.response?.data as string);
+        }
     };
-
-    useEffect(() => {
-        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-            if (selectedRows.length > 0) {
-                const message = "You have unsaved changes. Are you sure you want to leave?";
-                event.returnValue = message;
-                return message;
-            }
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, [selectedRows]);
 
     const handleMergeSelected = () => {
         const selectedData = selectedRows.map(index => filteredPeople[index]);
@@ -181,7 +189,6 @@ const Person = () => {
     }
 
     return (
-
         <Container>
             {errorMessage && (
                 <Alert variant="danger" className="my-3">
@@ -266,11 +273,11 @@ const Person = () => {
                         </div>
                         <div className="modal-body">
                             <div>
-                                <input type="radio" name="radioBtn" onChange={() => radioSelection(1)} id="radio_1" value="0" className="me-1"/>
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(1)} id="radio_1" value="0" className="me-1" checked={selectedRadio === 1}/>
                                 <label htmlFor="radio_1">Write new</label>
-                                <input type="radio" name="radioBtn" onChange={() => radioSelection(2)} id="radio_2" value="1" className="ms-2 me-1" />
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(2)} id="radio_2" value="1" className="ms-2 me-1" checked={selectedRadio === 2}/>
                                 <label htmlFor="radio_2">Select from people</label>
-                                <input type="radio" name="radioBtn" onChange={() => radioSelection(3)} id="radio_3" value="2" className="ms-2 me-1" />
+                                <input type="radio" name="radioBtn" onChange={() => radioSelection(3)} id="radio_3" value="2" className="ms-2 me-1" checked={selectedRadio === 3}/>
                                 <label htmlFor="radio_3">Select from identities</label>
                             </div>
                             {fieldIsRequired && (
@@ -278,7 +285,7 @@ const Person = () => {
                             )}
                             <div className="d-flex mb-2 mt-2">
                                 {selectedRadio === 1 && (
-                                    <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name" />
+                                    <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name"/>
                                 )}
                                 {(selectedRadio === 2 || selectedRadio === 3) && (
                                     <select className="form-control" id="selectName" name="personName">
@@ -292,7 +299,7 @@ const Person = () => {
                                             selectedPersons.map((person, personIndex) => (
                                                 person.identities.map((identity, index) => (
                                                     <option key={`${person.name}_${index}`} value={`${personIndex}_${index}`}>
-                                                        {identity.name}
+                                                        {identity.name === '' ? person.name : identity.name}
                                                     </option>
                                                 ))))
                                         )
@@ -332,7 +339,7 @@ const Person = () => {
                                     <td rowSpan={person.identities.length} className="align-middle rowspanLabel">
                                         <div className="d-flex col-md-12 justify-content-between">
                                             <div className="d-flex justify-content-left">
-                                                <input type="checkbox" className="form-check-input" name="selectedBox" value={personIndex} onChange={() => handleCheckboxChange(personIndex)} id={`person_${personIndex}`} />
+                                                <input type="checkbox" className="form-check-input" name="selectedBox" value={personIndex} onChange={() => handleCheckboxChange(personIndex)} id={`person_${personIndex}`}  checked={selectedRows.includes(personIndex)} />
                                                 <label className="custom-control-label ms-2 personLabel" style={{ fontSize: '0.75em' }} htmlFor={`person_${personIndex}`}>{person.name}</label>
                                             </div>
                                             <button type="submit" className="btn btn-sm btn-outline-primary" name="submitId" value={personIndex}>
@@ -377,13 +384,13 @@ const Person = () => {
                 // END OF THE TABLE CONTENT
             }
 
-            {people === null && (
+            {selectedProjectId === undefined && (
                 <div className="d-flex justify-content-center mt-5 mb-5">
                     <h5>Select a project to view people with identities</h5>
                 </div>
             )}
 
-            {people !== null && people.length === 0 && (
+            {people !== null && people.length === 0 && selectedProjectId !== undefined && (
                 <div className="d-flex justify-content-center mt-5 mb-5">
                     <h5>The project has no people</h5>
                 </div>
