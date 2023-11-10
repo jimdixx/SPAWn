@@ -67,12 +67,14 @@ const Person = () => {
     // Query for fetching projects
     const { error, data, status } = useQuery('projects', fetchProjectsData, {refetchOnWindowFocus: false});
 
+    // Handling of project selection
     const handleProjectSelect = (projectIdString: string) => {
         const projectId = parseInt(projectIdString, 10);
         setSelectedProjectId(projectId); // triggers useEffect below
         setIsProjectSelected(true);
     };
 
+    // Fetching new data when project is selected
     useEffect(() => {
         //console.log("Selected project id: ", selectedProjectId);
         if (selectedProjectId) {
@@ -82,26 +84,31 @@ const Person = () => {
         setIsAnyCheckboxSelected(false);
       }, [selectedProjectId]);
 
+    // Filtering people when search query is typed
     useEffect(() => {
         const filteredPeople = searchQuery ? people.filter(person => person.name.toLowerCase().includes(searchQuery.toLowerCase())) : people;
         setFilteredPeople(filteredPeople);
     }, [searchQuery, people])
 
+    // Hide "Filed is required" message
     useEffect(() => {
         setFieldIsRequired(false);
     }, [selectedRadio, showMergeModal])
 
+    // Cleaning messages
     useEffect(() => {
         setSuccessMessage("");
         setErrorMessage("");
     }, [selectedProjectId, searchQuery])
 
+    // Handling search query
     const handleFilterSearch = (event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
         setSearchQuery(value);
-        console.log(value);
+        //console.log(value);
     }
 
+    // Handling check of any checkbox
     const handleCheckboxChange = (personIndex: number) => {
         setSelectedRows(prevSelectedRows => {
             if (prevSelectedRows.includes(personIndex)) {
@@ -116,12 +123,14 @@ const Person = () => {
         });
     };
 
+    // Updating list of selected persons when any checkbox is checked
     useEffect(() => {
-        console.log(selectedRows);
+        //console.log(selectedRows);
         const updateSelectedPersons = selectedRows.map(index => filteredPeople[index]);
         setSelectedPersons(updateSelectedPersons);
     }, [selectedRows, filteredPeople]);
 
+    // Handling close of the modal window
     const handleCloseMergeModal = () => {
         const closeButton = document.querySelector('#newPerson button[data-bs-dismiss="modal"]') as HTMLButtonElement | null;
 
@@ -130,6 +139,7 @@ const Person = () => {
         }
     };
 
+    // Handling of merge request submit
     const handleCreatePersonSubmit = async () => {
         var response;
         if (selectedProjectId === undefined) {
@@ -160,7 +170,7 @@ const Person = () => {
                 selectedIndex = parseInt(selectedPersonIndex, 10);
             }
             const selectedPerson = selectedPersons[selectedIndex];
-            console.log("Selected person:", selectedPerson);
+            //console.log("Selected person:", selectedPerson);
 
             response = await mergePersons(selectedProjectId, selectedPersons, selectedPerson, undefined);
         }
@@ -177,14 +187,16 @@ const Person = () => {
         }
     };
 
+    // Show modal window with selected data
     const handleMergeSelected = () => {
         const selectedData = selectedRows.map(index => filteredPeople[index]);
         setShowMergeModal(true);
-        console.log("Selected Data:", selectedData);
+        //console.log("Selected Data:", selectedData);
     };
 
+    // Setting number of selected radio button
     function radioSelection(number: number) {
-        console.log("radioSelection");
+        //console.log("radioSelection");
         setSelectedRadio(number);
     }
 
@@ -285,7 +297,7 @@ const Person = () => {
                             )}
                             <div className="d-flex mb-2 mt-2">
                                 {selectedRadio === 1 && (
-                                    <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name"/>
+                                    <input type="text" className="form-control" id="inputName" name="personName" placeholder="Name" maxLength={50} />
                                 )}
                                 {(selectedRadio === 2 || selectedRadio === 3) && (
                                     <select className="form-control" id="selectName" name="personName">
