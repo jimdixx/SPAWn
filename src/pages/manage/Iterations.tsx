@@ -1,9 +1,12 @@
-import React, {useState, useEffect, ChangeEvent} from "react";
+import React, {useState, useEffect, ChangeEvent, ReactNode} from "react";
 import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects, Persons, Identity, mergePersons} from "../../api/APIManagementPerson";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
-import {Container, Button, Alert, Form, Col, InputGroup, FormControl} from "react-bootstrap";
+import {Container, Button, Alert, Form, Col, Row, InputGroup, FormControl} from "react-bootstrap";
+import {fetchIterationsAndPhases, Iteration, IterationAndPhases, Phase} from "../../api/APIManagmetIteartionAndPhases";
+import IterationPhase from "../../components/manage/IterationPhase";
+import {TableItem} from "../../components/manage/IterationPhase";
 
 const Iterations = () => {
     const [errorMessage, setErrorMessage] = useState("");
@@ -145,7 +148,7 @@ const Iterations = () => {
             </Col>
 
             {
-                // BUTTON AND SEARCH BOX
+                areIterationPhasesLoaded && drawTables()
             }
         </Container>
     );
