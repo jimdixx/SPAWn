@@ -13,6 +13,9 @@ const Iterations = () => {
     const [selectedProjectId, setSelectedProjectId] = useState<number>();
     const [userName, setUserName] = useState<string>("");
     const [isProjectSelected, setIsProjectSelected] = useState(false);
+    const [iterations, setIterations] = useState<Iteration[]>([]);
+    const [phases, setPhases] = useState<Phase[]>([]);
+    const [areIterationPhasesLoaded, setAreIterationPhasesLoaded] = useState(false);
     const navigate = useNavigate();
 
     // Fetching projects data
@@ -44,6 +47,68 @@ const Iterations = () => {
         console.log(projectId);
         setSelectedProjectId(projectId); // triggers useEffect below
         setIsProjectSelected(true);
+    };
+
+    // Fetching new data when project is selected
+    useEffect(() => {
+        //console.log("Selected project id: ", selectedProjectId);
+        if (selectedProjectId) {
+            fetchIterationAndPhasesData();
+        }
+    }, [selectedProjectId]);
+
+    const drawTables = ():ReactNode => {
+        const it: TableItem[] = iterations.map((value:Iteration):TableItem => {
+            return {
+                id:value.id,
+                name:value.name,
+                externalId:value.external,
+                description:value.description
+            }
+        });
+
+        const ph: TableItem[] = phases.map((value:Phase):TableItem => {
+            return {
+                id:value.id,
+                name:value.name,
+                externalId:value.external,
+                description:value.description
+            }
+        });
+        return(
+            <Row key={"table"}>
+                <Col sm={6} key={"iteration"}>
+                    <IterationPhase tableData={it} tableHeaders={["Name", "Description"]} tableHeader={"Iteration"} buttonLabel={"Iteration"}></IterationPhase>
+                </Col>
+                <Col sm={6} key={"phases"}>
+                    <IterationPhase tableData={ph} tableHeaders={["Name", "Description"]} tableHeader={"Phases"} buttonLabel={"Phases"}></IterationPhase>
+                </Col>
+            </Row>
+        );
+    }
+
+    const fetchIterationAndPhasesData = async () => {
+        const userName:string = retrieveUsernameFromStorage();
+
+        if (!userName) {
+            return;
+        }
+
+        setUserName(userName);
+        if(!selectedProjectId) {
+            setErrorMessage("No project selected. Please select a project.");
+            return;
+        }
+        const response = await fetchIterationsAndPhases(selectedProjectId.toString());
+
+        if (response.redirect) {
+            navigate(response.redirect);
+        } else {
+            let fetchedData = response.response.data as IterationAndPhases;
+            setIterations(fetchedData.iterationDtos);
+            setPhases(fetchedData.phaseDtos);
+            setAreIterationPhasesLoaded(true);
+        }
     };
 
     return (
