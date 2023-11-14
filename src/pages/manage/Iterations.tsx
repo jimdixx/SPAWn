@@ -4,9 +4,19 @@ import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects, Persons, Identity, mergePersons} from "../../api/APIManagementPerson";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {Container, Button, Alert, Form, Col, Row, InputGroup, FormControl} from "react-bootstrap";
-import {fetchIterationsAndPhases, Iteration, IterationAndPhases, Phase} from "../../api/APIManagmetIteartionAndPhases";
+import {
+    fetchIterationsAndPhases,
+    Iteration,
+    IterationAndPhases,
+    Phase,
+    sendIterationOrPhase
+} from "../../api/APIManagmetIteartionAndPhases";
 import IterationPhase from "../../components/manage/IterationPhase";
 import {TableItem} from "../../components/manage/IterationPhase";
+import {forEach} from "react-bootstrap/ElementChildren";
+
+const ITERATIONS = "/changeIteration";
+const PHASES = "/changePhase";
 
 const Iterations = () => {
     const [errorMessage, setErrorMessage] = useState("");
@@ -78,16 +88,46 @@ const Iterations = () => {
                 description:value.description
             }
         });
+
         return(
             <Row key={"table"}>
                 <Col sm={6} key={"iteration"}>
-                    <IterationPhase tableData={it} tableHeaders={["Name", "Description"]} tableHeader={"Iteration"} buttonLabel={"Iteration"}></IterationPhase>
+                    <Form onSubmit={handleIterationOnSubmit}>
+                        <IterationPhase tableData={it} tableHeaders={["Name", "Description"]} tableHeader={"Iteration"} buttonLabel={"Iteration"}></IterationPhase>
+                    </Form>
                 </Col>
                 <Col sm={6} key={"phases"}>
-                    <IterationPhase tableData={ph} tableHeaders={["Name", "Description"]} tableHeader={"Phases"} buttonLabel={"Phases"}></IterationPhase>
+                    <Form onSubmit={handlePhasesOnSubmit}>
+                        <IterationPhase tableData={ph} tableHeaders={["Name", "Description"]} tableHeader={"Phases"} buttonLabel={"Phases"}></IterationPhase>
+                    </Form>
                 </Col>
             </Row>
         );
+    }
+
+    const handleIterationOnSubmit = (event:any) => {
+        event.preventDefault();
+        const body = createBody(event.target);
+        const response = sendIterationOrPhase(body, ITERATIONS);
+    };
+
+    const handlePhasesOnSubmit = (event:any) => {
+        event.preventDefault();
+        const body = createBody(event.target);
+        const response = sendIterationOrPhase(body, PHASES);
+
+    };
+
+    const createBody = (target: any[]):string[] => {
+        const data:string[] = [];
+        const len = target.length;
+        for (let i = 1; i < len ;  i++) {
+            if (target[i].checked) {
+                const parts = target[i].id.split("_");
+                data.push(parts[1]);
+            }
+        }
+        return data;
     }
 
     const fetchIterationAndPhasesData = async () => {

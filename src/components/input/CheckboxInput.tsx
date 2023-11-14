@@ -20,7 +20,7 @@ const CheckboxInput: React.FC<CheckboxProps> = ({ checked, name, onChange, id, d
 
     return (
         <Form.Check
-            checked={checked}
+            checked={checkedValue}
             onChange={handleChange}
             id={id}
             name={name}
