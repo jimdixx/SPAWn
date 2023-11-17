@@ -1,5 +1,5 @@
 import React, {ReactNode, useState} from 'react';
-import {Iteration} from "../../api/APIManagmetIteartionAndPhases";
+import {Iteration} from "../../api/APIManagementIterationAndPhases";
 import Table from 'react-bootstrap/Table';
 import {Button} from "react-bootstrap";
 import CheckboxInput from "../input/CheckboxInput";

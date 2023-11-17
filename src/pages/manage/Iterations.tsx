@@ -10,7 +10,7 @@ import {
     IterationAndPhases,
     Phase,
     sendIterationOrPhase
-} from "../../api/APIManagmetIteartionAndPhases";
+} from "../../api/APIManagementIterationAndPhases";
 import IterationPhase from "../../components/manage/IterationPhase";
 import {TableItem} from "../../components/manage/IterationPhase";
 import {forEach} from "react-bootstrap/ElementChildren";
@@ -105,17 +105,51 @@ const Iterations = () => {
         );
     }
 
-    const handleIterationOnSubmit = (event:any) => {
+    const handleResponse = (response:API_RESPONSE_Object) => {
+        const data = response.response;
+        const headerMessage = data.data.informMessage;
+        const bodyMessage = data.data.message;
+        const errorMessage = data.data.errormessage;
+        const successMessage = data.data.successMessage;
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+            return;
+        }
+        else if (successMessage) {
+            setSuccessMessage(successMessage);
+            return;
+        }
+        setModalHeader(headerMessage);
+        setModalBody(bodyMessage);
+
+
+
+    }
+
+    const handleIterationOnSubmit = async (event:any) => {
         event.preventDefault();
         const body = createBody(event.target);
-        const response = sendIterationOrPhase(body, ITERATIONS);
+
+        setSuccessMessage("");
+        setModalReady(false);
+        setModalHeader("");
+        setErrorMessage("");
+
+        const response:API_RESPONSE_Object = await sendIterationOrPhase(body, ITERATIONS) as API_RESPONSE_Object;
+        handleResponse(response);
     };
 
     const handlePhasesOnSubmit = (event:any) => {
         event.preventDefault();
         const body = createBody(event.target);
-        const response = sendIterationOrPhase(body, PHASES);
 
+        setSuccessMessage("");
+        setModalReady(false);
+        setModalHeader("");
+        setErrorMessage("");
+
+        const response:API_RESPONSE_Object = await sendIterationOrPhase(body, PHASES) as API_RESPONSE_Object;
+        handleResponse(response);
     };
 
     const createBody = (target: any[]):string[] => {
@@ -165,6 +199,16 @@ const Iterations = () => {
                 <Alert variant="success" className="my-3">
                     {successMessage}
                 </Alert>
+            )}
+            {modalHeader && (
+                    <Alert variant="warning" className="my-3">
+                        {modalHeader + " "}
+                        <a href={""} onClick={showModalWindow}>See all</a>
+                        {isModalReady &&(
+                            <ModalWindow header={"Category assign log."} body={modalBody} onHide={()=>{setModalReady(false);}}/>
+                        )}
+                    </Alert>
+
             )}
 
             <h3>Iteration and Phases</h3>
