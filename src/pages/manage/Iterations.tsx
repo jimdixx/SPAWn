@@ -4,6 +4,7 @@ import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects, Persons, Identity, mergePersons} from "../../api/APIManagementPerson";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {Container, Button, Alert, Form, Col, Row, InputGroup, FormControl} from "react-bootstrap";
+import ModalWindow from "../../components/manage/Modal";
 import {
     fetchIterationsAndPhases,
     Iteration,
@@ -13,7 +14,19 @@ import {
 } from "../../api/APIManagementIterationAndPhases";
 import IterationPhase from "../../components/manage/IterationPhase";
 import {TableItem} from "../../components/manage/IterationPhase";
-import {forEach} from "react-bootstrap/ElementChildren";
+
+interface API_RESPONSE_MESSAGE {
+    informMessage?: string,
+    successMessage?:string,
+    message?: string,
+    errormessage?: string
+
+}
+
+interface API_RESPONSE_Object {
+    authenticated: boolean,
+    response: {status:number, data:API_RESPONSE_MESSAGE}
+}
 
 const ITERATIONS = "/changeIteration";
 const PHASES = "/changePhase";
@@ -21,6 +34,9 @@ const PHASES = "/changePhase";
 const Iterations = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [modalHeader,setModalHeader] = useState<string|undefined>("");
+    const [modalBody,setModalBody] = useState<string|undefined>("");
+    const [isModalReady, setModalReady] = useState(false);
     const [fieldIsRequired, setFieldIsRequired] = useState(false);
     const [projects, setProjects] = useState<Projects[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<number>();
@@ -56,10 +72,12 @@ const Iterations = () => {
 
     // Handling of project selection
     const handleProjectSelect = (projectIdString: string) => {
+
         const projectId = parseInt(projectIdString, 10);
         console.log(projectId);
         setSelectedProjectId(projectId); // triggers useEffect below
         setIsProjectSelected(true);
+
     };
 
     // Fetching new data when project is selected
@@ -139,7 +157,7 @@ const Iterations = () => {
         handleResponse(response);
     };
 
-    const handlePhasesOnSubmit = (event:any) => {
+    const handlePhasesOnSubmit = async (event:any) => {
         event.preventDefault();
         const body = createBody(event.target);
 
@@ -187,6 +205,10 @@ const Iterations = () => {
             setAreIterationPhasesLoaded(true);
         }
     };
+    const showModalWindow = (event:any) => {
+        event.preventDefault();
+        setModalReady(true);
+    }
 
     return (
         <Container>
