@@ -1,12 +1,17 @@
 import { Projects, fetchProjects } from "./APIManagementPerson";
 import ApiCaller, {API_RESPONSE, HTTP_METHOD} from "../components/api/ApiCaller";
 
-const CATEGORIES_URL = "management/categoriesFromProject";
+const CATEGORIES_URL = "management/getCategories";
 
 export interface Category {
     id: number,
     name: string,
     description: string
+}
+
+export interface ApiResponse {
+    message: string | null;
+    responseBody: Category[] | null
 }
 
 export const fetchProjectsList = async (username?:string): Promise<API_RESPONSE> => {

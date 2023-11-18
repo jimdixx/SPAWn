@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {message} from "antd";
 import {Col, Container, Form} from "react-bootstrap";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {fetchProjects, Projects} from "../../api/APIManagementPerson";
-import {Category} from "../../api/APIManagementCategories";
+import {Category, fetchCategories, ApiResponse } from "../../api/APIManagementCategories";
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "react-query";
 
@@ -20,6 +20,7 @@ const Categories = () => {
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [isAnyCheckboxSelected, setIsAnyCheckboxSelected] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]);
     const navigate = useNavigate();
 
     const handleCheckboxChange = (id: number) => {
@@ -55,7 +56,37 @@ const Categories = () => {
         }
     };
 
+    const fetchCategoriesData = async () => {
+        const userName: string = retrieveUsernameFromStorage();
+
+        if (!userName) {
+            return;
+        }
+
+        setUserName(userName);
+
+        const response = await fetchCategories(userName, selectedProjectId);
+
+        if (response.redirect) {
+            navigate(response.redirect);
+        } else {
+            const apiResponse: ApiResponse = response.response.data as ApiResponse;
+            //console.log(apiResponse.responseBody);
+            let fetchedData = apiResponse.responseBody || [];
+            setCategories(fetchedData);
+        }
+};
+
+
     const { error, data, status } = useQuery('projects', fetchProjectsData, {refetchOnWindowFocus: false});
+
+    // Fetching new data when project is selected
+    useEffect(() => {
+        //console.log("Selected project id: ", selectedProjectId);
+        if (selectedProjectId) {
+            fetchCategoriesData();
+        }
+    }, [selectedProjectId]);
 
     const handleProjectSelect = (projectIdString: string) => {
         const projectId = parseInt(projectIdString, 10);
@@ -67,13 +98,6 @@ const Categories = () => {
         // Handle form submit logic
         console.log(`Form submitted with submitId: ${submitId}`);
     };
-
-
-    const mockedCategories: Category[] = [
-        { id: 1, name: 'Category 1', description: 'desc'},
-        { id: 2, name: 'Category 2', description: 'desc' },
-        { id: 3, name: 'Category 3', description: 'desc' },
-    ];
 
     return (
         <Container>
@@ -152,13 +176,13 @@ const Categories = () => {
             </Col>
 
             <form action="#" method="post">
-                {mockedCategories && mockedCategories.length > 0 && (
+                {categories && categories.length > 0 && (
                     <>
                         <div className="d-flex mb-2 mt-3">
                             <button type="submit" className="btn btn-outline-primary" name="submitType" value="1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
                                      className="bi bi-arrow-clockwise mb-1" viewBox="0 0 16 16" style={{ marginRight: '0.2em' }}>
-                                    <path fill-rule="evenodd"
+                                    <path fillRule="evenodd"
                                           d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                                     <path
                                         d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
@@ -180,7 +204,7 @@ const Categories = () => {
                             <button type="submit" className="btn btn-outline-primary ms-2" name="submitType" value="3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
                                      className="bi bi-activity" viewBox="0 0 16 16" style={{ marginRight: '0.2em' }}>
-                                    <path fill-rule="evenodd"
+                                    <path fillRule="evenodd"
                                           d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"/>
                                 </svg>
                                 Make selected as Activity
@@ -208,7 +232,7 @@ const Categories = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {mockedCategories.map((category) => (
+                                {categories.map((category) => (
                                     <tr key={category.id} className="entryLabel">
                                         <td className="text-center">
                                             <div className="custom-control custom-checkbox d-flex">
@@ -221,7 +245,7 @@ const Categories = () => {
                                                     checked={selectedIds.includes(category.id)}
                                                     onChange={() => handleCheckboxChange(category.id)}
                                                 />
-                                                <label className="custom-control-label ms-2 nameLabel" htmlFor={`category_${category.id}`}>
+                                                <label className="custom-control-label ms-2 nameLabel" htmlFor={`category_${category.id}`} style={{ fontSize: '0.75em' }}>
                                                     {category.name}
                                                 </label>
                                                 <div className="ms-auto">
@@ -236,7 +260,7 @@ const Categories = () => {
                                                         >
                                                             {submitId === 1 && (
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="bi bi-arrow-clockwise mb-1" viewBox="0 0 16 16">
-                                                                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                                                    <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                                                                     <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
                                                                 </svg>
                                                             )}
@@ -248,7 +272,7 @@ const Categories = () => {
                                                             )}
                                                             {submitId === 3 && (
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="bi bi-activity" viewBox="0 0 16 16">
-                                                                    <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"/>
+                                                                    <path fillRule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"/>
                                                                 </svg>
                                                             )}
                                                         </button>
@@ -264,6 +288,18 @@ const Categories = () => {
                     </>
                 )}
             </form>
+
+            {selectedProjectId === undefined && (
+                <div className="d-flex justify-content-center mt-5 mb-5">
+                    <h5>Select a project to view categories</h5>
+                </div>
+            )}
+
+            {categories !== null && categories.length === 0 && selectedProjectId !== undefined && (
+                <div className="d-flex justify-content-center mt-5 mb-5">
+                    <h5>The project has no categories</h5>
+                </div>
+            )}
 
         </Container>
     );
