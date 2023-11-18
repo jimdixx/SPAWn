@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import {message} from "antd";
 import {Col, Container, Form} from "react-bootstrap";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
@@ -16,11 +16,11 @@ const Categories = () => {
     const [selectedProjectId, setSelectedProjectId] = useState<number>();
     const [userName, setUserName] = useState<string>("");
     const [projects, setProjects] = useState<Projects[]>([]);
-    const [filterSearch, setFilterSearch] = useState('');
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [isAnyCheckboxSelected, setIsAnyCheckboxSelected] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const navigate = useNavigate();
 
     const handleCheckboxChange = (id: number) => {
@@ -74,8 +74,9 @@ const Categories = () => {
             //console.log(apiResponse.responseBody);
             let fetchedData = apiResponse.responseBody || [];
             setCategories(fetchedData);
+            setFilteredCategories(fetchedData);
         }
-};
+    };
 
 
     const { error, data, status } = useQuery('projects', fetchProjectsData, {refetchOnWindowFocus: false});
@@ -85,12 +86,30 @@ const Categories = () => {
         //console.log("Selected project id: ", selectedProjectId);
         if (selectedProjectId) {
             fetchCategoriesData();
+            setSelectedRows([]);
         }
     }, [selectedProjectId]);
 
+    // Filtering categories when search query is typed
+    useEffect(() => {
+        const filteredCategories = searchQuery ? categories.filter(category => category.name.toLowerCase().includes(searchQuery.toLowerCase())) : categories;
+        setFilteredCategories(filteredCategories);
+    }, [searchQuery, categories]);
+
+    useEffect(() => {
+        console.log("Selected rows: ", selectedRows);
+    }, [selectedRows]);
+
+    // Handling search query
+    const handleFilterSearch = (event: ChangeEvent<HTMLInputElement>) => {
+        const { value } = event.target;
+        setSearchQuery(value);
+        //console.log(value);
+    }
+
     const handleProjectSelect = (projectIdString: string) => {
         const projectId = parseInt(projectIdString, 10);
-        setSelectedProjectId(projectId); // triggers useEffect below
+        setSelectedProjectId(projectId); // triggers useEffect above
         setIsProjectSelected(true);
     };
 
@@ -216,8 +235,7 @@ const Categories = () => {
                                     className="form-control"
                                     id="filterSearch"
                                     placeholder="Search"
-                                    value={filterSearch}
-                                    onChange={(e) => setFilterSearch(e.target.value)}
+                                    onChange={handleFilterSearch}
                                 />
                             </div>
                         </div>
@@ -232,7 +250,7 @@ const Categories = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {categories.map((category) => (
+                                {filteredCategories.map((category) => (
                                     <tr key={category.id} className="entryLabel">
                                         <td className="text-center">
                                             <div className="custom-control custom-checkbox d-flex">
@@ -242,7 +260,6 @@ const Categories = () => {
                                                     name="selectedBox"
                                                     value={category.id}
                                                     id={`category_${category.id}`}
-                                                    checked={selectedIds.includes(category.id)}
                                                     onChange={() => handleCheckboxChange(category.id)}
                                                 />
                                                 <label className="custom-control-label ms-2 nameLabel" htmlFor={`category_${category.id}`} style={{ fontSize: '0.75em' }}>
