@@ -1,9 +1,9 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import {message} from "antd";
-import {Col, Container, Form} from "react-bootstrap";
+import {Col, Container, Form, Spinner} from "react-bootstrap";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {fetchProjects, Projects} from "../../api/APIManagementPerson";
-import {Category, fetchCategories, ApiResponse } from "../../api/APIManagementCategories";
+import {Category, fetchCategories, ApiResponse, AdditionalInformation, AdditionalFields, requestChangeCategories } from "../../api/APIManagementCategories";
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "react-query";
 
@@ -12,6 +12,7 @@ const Categories = () => {
     const [showError, setShowError] = useState("");
     const [showSuccess, setShowSuccess] = useState("");
     const [showInform, setShowInform] = useState("");
+    const [logText, setLogText] = useState("");
     const [isProjectSelected, setIsProjectSelected] = useState(false);
     const [selectedProjectId, setSelectedProjectId] = useState<number>();
     const [userName, setUserName] = useState<string>("");
@@ -21,6 +22,7 @@ const Categories = () => {
     const [isAnyCheckboxSelected, setIsAnyCheckboxSelected] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleCheckboxChange = (id: number) => {
@@ -36,6 +38,7 @@ const Categories = () => {
             }
         });
     };
+
     // Fetching projects data
     const fetchProjectsData = async () => {
         const userName:string = retrieveUsernameFromStorage();
@@ -78,7 +81,6 @@ const Categories = () => {
         }
     };
 
-
     const { error, data, status } = useQuery('projects', fetchProjectsData, {refetchOnWindowFocus: false});
 
     // Fetching new data when project is selected
@@ -96,9 +98,16 @@ const Categories = () => {
         setFilteredCategories(filteredCategories);
     }, [searchQuery, categories]);
 
+
     useEffect(() => {
-        console.log("Selected rows: ", selectedRows);
-    }, [selectedRows]);
+        setSelectedRows([]);
+    }, [isLoading]);
+
+    useEffect(() => {
+        setShowSuccess('');
+        setShowInform('');
+        setShowError('');
+    }, [selectedProjectId]);
 
     // Handling search query
     const handleFilterSearch = (event: ChangeEvent<HTMLInputElement>) => {
@@ -113,9 +122,58 @@ const Categories = () => {
         setIsProjectSelected(true);
     };
 
-    const handleFormSubmit = (submitId: number) => {
-        // Handle form submit logic
-        console.log(`Form submitted with submitId: ${submitId}`);
+    // handle change request
+    const handleChangeRequest = async (categories:Category[], subType:number, prjId?:number) => {
+        const response = await requestChangeCategories(categories, subType, prjId);
+
+        if (response.redirect) {
+            navigate(response.redirect);
+        } else {
+            const apiResponse: ApiResponse = response.response.data as ApiResponse;
+            //console.log(apiResponse)
+            if (apiResponse.message) {
+                setShowError(apiResponse.message);
+                return;
+            }
+
+            setLogText(apiResponse.additionalInformation?.additionalFields?.message || '');
+
+            if (apiResponse.additionalInformation?.additionalFields?.informMessage) {
+                setShowInform(apiResponse.additionalInformation.additionalFields.informMessage || '');
+                return;
+            }
+
+            else if (apiResponse.additionalInformation?.additionalFields?.successMessage) {
+                setShowSuccess(apiResponse.additionalInformation.additionalFields.successMessage || '');
+                return;
+            }
+        }
+    }
+
+    // handle change request of selected categories
+    const handleCategoriesChange = async (submitId: number) => {
+        try {
+            setIsLoading(true);
+            const selectedCategories = categories.filter(category => selectedRows.includes(category.id));
+            await handleChangeRequest(selectedCategories, submitId, selectedProjectId);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // handle change request of single category (by small button)
+    const handleSingleCategoryChange = async (categoryId: number, submitId: number) => {
+        try {
+            setIsLoading(true);
+            const selectedCategory = categories.find(category => category.id === categoryId);
+            if (!selectedCategory) {
+                console.error("Selected category not found.");
+                return;
+            }
+            await handleChangeRequest([selectedCategory], submitId, selectedProjectId);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -167,7 +225,7 @@ const Categories = () => {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <p style={{ whiteSpace: "pre" }}></p>
+                            <p style={{ whiteSpace: "pre" }}>{logText}</p>
                         </div>
                     </div>
                 </div>
@@ -197,8 +255,14 @@ const Categories = () => {
             <form action="#" method="post">
                 {categories && categories.length > 0 && (
                     <>
+                        {isLoading && (
+                            <Spinner animation="border" role="status" className="m-3" >
+                                <span className="sr-only">Loading...</span>
+                            </Spinner>
+                        )}
+                        {!isLoading && (
                         <div className="d-flex mb-2 mt-3">
-                            <button type="submit" className="btn btn-outline-primary" name="submitType" value="1">
+                            <button type="button" className="btn btn-outline-primary" name="submitType" value="1" onClick={() => handleCategoriesChange(1)} disabled={selectedRows.length === 0}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
                                      className="bi bi-arrow-clockwise mb-1" viewBox="0 0 16 16" style={{ marginRight: '0.2em' }}>
                                     <path fillRule="evenodd"
@@ -209,7 +273,7 @@ const Categories = () => {
                                 Make selected as Iteration
                             </button>
 
-                            <button type="submit" className="btn btn-outline-primary ms-2" name="submitType" value="2">
+                            <button type="button" className="btn btn-outline-primary ms-2" name="submitType" value="2" onClick={() => handleCategoriesChange(2)} disabled={selectedRows.length === 0}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
                                      className="bi bi-rocket-takeoff-fill" viewBox="0 0 16 16" style={{ marginRight: '0.2em' }}>
                                     <path
@@ -220,7 +284,7 @@ const Categories = () => {
                                 Make selected as Phase
                             </button>
 
-                            <button type="submit" className="btn btn-outline-primary ms-2" name="submitType" value="3">
+                            <button type="button" className="btn btn-outline-primary ms-2" name="submitType" value="3" onClick={() => handleCategoriesChange(3)} disabled={selectedRows.length === 0}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
                                      className="bi bi-activity" viewBox="0 0 16 16" style={{ marginRight: '0.2em' }}>
                                     <path fillRule="evenodd"
@@ -239,7 +303,7 @@ const Categories = () => {
                                 />
                             </div>
                         </div>
-
+                        )}
                         <div className="table-responsive">
                             <table className="table table-bordered">
                                 <thead>
@@ -260,20 +324,21 @@ const Categories = () => {
                                                     name="selectedBox"
                                                     value={category.id}
                                                     id={`category_${category.id}`}
+                                                    checked={selectedRows.includes(category.id)}
                                                     onChange={() => handleCheckboxChange(category.id)}
                                                 />
                                                 <label className="custom-control-label ms-2 nameLabel" htmlFor={`category_${category.id}`} style={{ fontSize: '0.75em' }}>
                                                     {category.name}
                                                 </label>
+                                                {!isLoading && (
                                                 <div className="ms-auto">
                                                     {[1, 2, 3].map((submitId) => (
                                                         <button
                                                             key={submitId}
-                                                            type="submit"
+                                                            type="button"
                                                             className="btn btn-sm btn-outline-primary me-1"
                                                             name="submitId"
-                                                            value={`${submitId}_${category.id}`}
-                                                            onClick={() => handleFormSubmit(submitId)}
+                                                            onClick={() =>handleSingleCategoryChange(category.id, submitId)}
                                                         >
                                                             {submitId === 1 && (
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="bi bi-arrow-clockwise mb-1" viewBox="0 0 16 16">
@@ -294,7 +359,7 @@ const Categories = () => {
                                                             )}
                                                         </button>
                                                     ))}
-                                                </div>
+                                                </div> )}
                                             </div>
                                         </td>
                                     </tr>
