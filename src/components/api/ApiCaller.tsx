@@ -6,13 +6,34 @@ export enum HTTP_METHOD {
     "GET",
     "PUT"
 }
+interface getParamsObject {
+    [key:string]:string
+}
+const createGetParams = (body: any): string => {
+    let data = body;
+    if(typeof(body) === "string"){
+        data = JSON.parse(body) as getParamsObject;
+    }
+    const keys = Object.keys(data);
+    if(keys.length === 0){
+        return "";
+    }
+    let params:string = "?";
+    for(let i = 0; i < keys.length; i++){
+        const key = keys[i];
+        params += `${key}=${data[key]}`;
+    }
+    return params;
+}
+
 
 const doApiCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) => {
     switch (httpMethod) {
         case HTTP_METHOD.POST:
             return await axiosPrivate().post(url, data);
         case HTTP_METHOD.GET:
-            return await axiosPrivate().get(url);
+            const params = createGetParams(data);
+            return await axiosPrivate().get(url+params);
         case HTTP_METHOD.PUT:
             return await axiosPrivate().put(url,data);
     }

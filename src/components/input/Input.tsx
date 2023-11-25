@@ -27,7 +27,7 @@ const Input: React.FC<InputProps> = ({ value, name,onChange,id, placeholder = ''
             placeholder={placeholder}
             id={id}
             name={name}
-    />
+        />
 );
 };
 
