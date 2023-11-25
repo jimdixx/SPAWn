@@ -9,10 +9,12 @@ interface InputProps {
     id: string;
     name: string;
     onChange: (elementId:string, value: string) => void;
+    description?: string;
     placeholder?: string;
+    readonly? : boolean
 }
 
-const Input: React.FC<InputProps> = ({ value, name,onChange,id, placeholder = '',type="text" }) => {
+const Input: React.FC<InputProps> = ({ value, name,onChange,id,readonly=false ,placeholder = '',type="text" }) => {
     const [inputValue,setInputValue] = useState(value);
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
@@ -20,6 +22,7 @@ const Input: React.FC<InputProps> = ({ value, name,onChange,id, placeholder = ''
     };
 
     return (
+
         <Form.Control
             type={type}
             value={inputValue}
@@ -27,6 +30,7 @@ const Input: React.FC<InputProps> = ({ value, name,onChange,id, placeholder = ''
             placeholder={placeholder}
             id={id}
             name={name}
+            readOnly={readonly}
     />
 );
 };

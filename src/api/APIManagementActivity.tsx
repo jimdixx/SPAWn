@@ -7,10 +7,16 @@ export interface ActivityDto {
     description:string,
     externalId:number,
     startDate:string,
-    endDate:string
+    endDate:string,
+    id: number
 }
 
 export const fetchActivities = async (projectId: number | undefined): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({projectId:projectId});
     return await ApiCaller(data, ACTIVITY_URL, HTTP_METHOD.GET);
+}
+export const updateWuActivity = async(body:{activityId:number, wuIds:number[]}) =>{
+    const data:{} = JSON.stringify(body);
+    return await ApiCaller(data, WU_UPDATE_RUL, HTTP_METHOD.PUT);
+
 }

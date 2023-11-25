@@ -74,7 +74,7 @@ export interface API_RESPONSE {
     }
 }
 
-const   doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<API_RESPONSE> => {
+const  doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<API_RESPONSE> => {
 
         let response;
         try {

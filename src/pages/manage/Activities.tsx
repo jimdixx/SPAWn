@@ -1,4 +1,4 @@
-import React, {useState, useEffect, ChangeEvent} from "react";
+import React, {useState, useEffect, ChangeEvent, ReactNode} from "react";
 import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects } from "../../api/APIManagementPerson";
