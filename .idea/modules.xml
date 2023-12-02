@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ASWI_FE.iml" filepath="$PROJECT_DIR$/.idea/ASWI_FE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SPAWn.iml" filepath="$PROJECT_DIR$/.idea/SPAWn.iml" />
     </modules>
   </component>
 </project>

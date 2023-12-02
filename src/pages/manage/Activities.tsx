@@ -3,7 +3,7 @@ import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects } from "../../api/APIManagementPerson";
 import {fetchActivities, ActivityDto, updateWuActivity} from "../../api/APIManagementActivity";
-import {fetchWorkUnits, WorkUnitDto } from "../../api/APIManagementWorkUnit";
+import {fetchWorkUnits, WorkUnitDto, UnitsData } from "../../api/APIManagementWorkUnit";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import CheckboxInput from "../../components/input/CheckboxInput";
 import Input from "../../components/input/Input";
@@ -21,6 +21,12 @@ const Activities = () => {
     const [isActivitySelected, setIsActivitySelected] = useState(false);
     const [activities, setActivities] = useState<ActivityDto[]>([]);
     const [workUnits, setWorkUnits] = useState<WorkUnitDto[]>([]);
+    const [workUnits_categories, setWorkUnits_categories] = useState<string[]>([]);
+    const [workUnits_types, setWorkUnits_types] = useState<string[]>([]);
+
+    const [workUnits_categories_filter, setWorkUnits_categories_filter] = useState<string[]>([]);
+    const [workUnits_types_filter, setWorkUnits_types_filter] = useState<string[]>([]);
+
     const navigate = useNavigate();
 
 
@@ -85,8 +91,10 @@ const Activities = () => {
         if (response.redirect) {
             navigate(response.redirect);
         } else {
-            let fetchedData = response.response.data as WorkUnitDto[];
-            setWorkUnits(fetchedData);
+            let fetchedData = response.response.data as UnitsData;
+            setWorkUnits(fetchedData.units);
+            setWorkUnits_categories(fetchedData.unit_distinct_categories);
+            setWorkUnits_types(fetchedData.unit_distinct_types);
             console.log(workUnits);
         }
     }
@@ -219,6 +227,66 @@ const Activities = () => {
         )
     };
 
+    const drawFilters = () => {
+        return (
+            <div>
+                <Col xs="auto">
+                    <Form.Group>
+                        <Form.Label className="mb-1">Select Category:</Form.Label>
+                            {workUnits_categories.length > 0 ? (
+                                <Container>
+                                <Form.Control
+                                    as="select"
+                                    name="selectedCategory"
+                                    id="categorySelector"
+                                >
+                                    <option value="" >Select a Category</option>
+                                    {workUnits_categories.map(category => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                    </option>
+                                    ))}
+                                </Form.Control>
+                                    <Button> Add category filter</Button>
+                                </Container>
+                            ) : (
+                                <option value="" >No Category in the Activity</option>
+                            )}
+                    </Form.Group>
+                </Col>
+                
+                <Col xs="auto">
+                    <Form.Group>
+                        <Form.Label className="mb-1">Select Type:</Form.Label>
+                        {workUnits_types.length > 0 ? (
+                            <Container>
+                                <Col sm={10}>
+                                <Form.Control
+                                    as="select"
+                                    name="selectedType"
+                                    onChange={event => {console.log("tady")}}
+                                    id="typeSelector">
+                                    <option value="" >Select a Type</option>
+                                    {workUnits_types.map(type => (
+                                        <option key={type} value={type}>
+                                            {type}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                                </Col>
+                                <Col sm={2}>
+                                <Button> Add category filter</Button>
+                                </Col>
+                            </Container>
+                        ) : (
+                            <option value="" >No Types in the Activity</option>
+                        )}
+                    </Form.Group>
+                </Col>
+            </div>
+        )
+    }
+
     return (
         <Container>
             {errorMessage && (
@@ -271,6 +339,9 @@ const Activities = () => {
                     {isActivitySelected ? (
                         <div>
                             {drawSelectedActivityAndRevertButton()}
+                            {
+                                drawFilters()
+                            }
                             {drawWorkUnitsTable() }
                         </div>
                     ) : (
