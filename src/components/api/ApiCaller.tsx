@@ -25,7 +25,9 @@ const createGetParams = (body: any): string => {
         let value = data[key];
         if(Array.isArray(value))
             value = value.join(",");
-        params += `${key}=${value}&`;
+        
+        if(value)
+            params += `${key}=${value}&`;
     }
     return params;
 }

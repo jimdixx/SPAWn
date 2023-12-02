@@ -29,8 +29,8 @@ const Activities = () => {
     const [workUnits_categories, setWorkUnits_categories] = useState<string[]>([]);
     const [workUnits_types, setWorkUnits_types] = useState<string[]>([]);
 
-    const [workUnits_categories_filter, setWorkUnits_categories_filter] = useState<string[]>(["category_bublina"]);
-    const [workUnits_types_filter, setWorkUnits_types_filter] = useState<string[]>(["type_bublina"]);
+    const [workUnits_categories_filter, setWorkUnits_categories_filter] = useState<string[]>([]);
+    const [workUnits_types_filter, setWorkUnits_types_filter] = useState<string[]>([]);
 
     const navigate = useNavigate();
 
@@ -140,6 +140,10 @@ const Activities = () => {
             navigate(response.redirect);
         } else {
             let fetchedData = response.response.data as UnitsData;
+            if(!fetchedData){
+                setErrorMessage(`Activity ${act.name} doesn´t contain any work units.`)
+                return;
+            }
             setWorkUnits(fetchedData.units);
             createWorkUnitMap(fetchedData.units);
             setWorkUnits_categories(fetchedData.unit_distinct_categories);
