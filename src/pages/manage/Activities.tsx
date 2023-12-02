@@ -30,6 +30,15 @@ const Activities = () => {
     const navigate = useNavigate();
 
 
+    const addCategoryFilter = (category: string) =>{
+        workUnits_categories_filter.push(category);
+        setWorkUnits_categories_filter(workUnits_categories_filter);
+    }
+
+    const addTypeFilter = (type: string) =>{
+        workUnits_types_filter.push(type);
+        setWorkUnits_types_filter(workUnits_types_filter);
+    }
     // Fetching projects data
     const fetchProjectsData = async () => {
         const userName:string = retrieveUsernameFromStorage();

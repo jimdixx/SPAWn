@@ -18,7 +18,7 @@ export interface UnitsData {
     unit_distinct_types:string[]
 }
 
-export const fetchWorkUnits = async (projectId: number | undefined): Promise<API_RESPONSE> => {
+export const fetchWorkUnits = async (projectId: number | undefined, category_filter:string[], type_filter:string[]): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({projectId:projectId});
     return await ApiCaller(data, WORKUNIT_URL, HTTP_METHOD.GET);
 }
