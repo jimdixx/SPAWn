@@ -57,7 +57,7 @@ const Activities = () => {
 
         setWorkUnits_types_filter(filterObject);
     }
-    const createBubble = (text:string):ReactNode =>{
+    const createBubble = (text:string,removeFunction:Function):ReactNode =>{
         if(!text)
             return;
         return (
@@ -66,8 +66,8 @@ const Activities = () => {
                 <Col xs="auto">
                   {/* Small div with rounded corners */}
                   <div className="bg-secondary text-white p-1 rounded">
-                    {text}
-                    <CloseButton/>
+                    <span>{text}</span>
+                    <CloseButton onClick={()=>{removeFunction(text);}}/>
                   </div>
                 </Col>
                 
@@ -75,10 +75,10 @@ const Activities = () => {
             </Container>
           );
     }
-    const createFilterBubbles = (filters: filterObject):ReactNode =>{
+    const createFilterBubbles = (filters: filterObject, removeFunction:Function):ReactNode =>{
         const bubbles: ReactNode[] = [];
         const keys = Object.keys(filters);
-        keys.forEach((filterText)=>{bubbles.push(createBubble(filterText));});
+        keys.forEach((filterText)=>{bubbles.push(createBubble(filterText,removeFunction));});
         return (
             <Container className="align-items-center">
                 {bubbles}
@@ -322,7 +322,7 @@ const Activities = () => {
             <div>
                 <Col xs="auto">
                     <Form.Group>
-                    {createFilterBubbles(workUnits_categories_filter)}
+                    {createFilterBubbles(workUnits_categories_filter,removeCategoryFilter)}
 
                         <Form.Label className="mb-1">Select Category:</Form.Label>
                             {workUnits_categories.length > 0 ? (
@@ -357,7 +357,7 @@ const Activities = () => {
                 
                 <Col xs="auto">
                     <Form.Group>
-                    {createFilterBubbles(workUnits_types_filter)}
+                    {createFilterBubbles(workUnits_types_filter,removeTypeFilter)}
                         <Form.Label className="mb-1">Select Type:</Form.Label>
                         {workUnits_types.length > 0 ? (
                             <Container>
