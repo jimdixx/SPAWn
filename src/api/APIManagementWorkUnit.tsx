@@ -1,7 +1,9 @@
 import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../components/api/ApiCaller";
 
 const WORKUNIT_URL = "/management/activity_work_units";
-
+export interface filterObject {
+    [key:string] : boolean
+}
 export interface WorkUnitDto {
     assignee:string,
     type:string,
@@ -18,7 +20,9 @@ export interface UnitsData {
     unit_distinct_types:string[]
 }
 
-export const fetchWorkUnits = async (projectId: number | undefined, category_filter:string[], type_filter:string[]): Promise<API_RESPONSE> => {
-    const data:{} = JSON.stringify({projectId:projectId,category:category_filter,type:type_filter});
+export const fetchWorkUnits = async (projectId: number | undefined, category_filter:filterObject, type_filter:filterObject): Promise<API_RESPONSE> => {
+    const data:{} = JSON.stringify({projectId:projectId,
+        //category:category_filter,type:type_filter
+    });
     return await ApiCaller(data, WORKUNIT_URL, HTTP_METHOD.GET);
 }

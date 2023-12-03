@@ -3,7 +3,7 @@ import {useQuery} from "react-query";
 import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects } from "../../api/APIManagementPerson";
 import {fetchActivities, ActivityDto, updateWuActivity} from "../../api/APIManagementActivity";
-import {fetchWorkUnits, WorkUnitDto, UnitsData } from "../../api/APIManagementWorkUnit";
+import {fetchWorkUnits, WorkUnitDto, UnitsData,filterObject } from "../../api/APIManagementWorkUnit";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import CheckboxInput from "../../components/input/CheckboxInput";
 import Input from "../../components/input/Input";
@@ -13,6 +13,7 @@ import {Container, Button, Alert, Form, Col, Table, Row, CloseButton} from "reac
 interface wuIdMap {
     [key:string] : number
 }
+
 
 const Activities = () => {
     const [errorMessage, setErrorMessage] = useState("");
@@ -28,21 +29,33 @@ const Activities = () => {
     const [workUnitIds, setWorkUnitsIds] = useState<wuIdMap>({});
     const [workUnits_categories, setWorkUnits_categories] = useState<string[]>([]);
     const [workUnits_types, setWorkUnits_types] = useState<string[]>([]);
+    const [categoryFilterValue,setCategoryFilterValue] = useState<string>("");
+    const [typeFilterValue,setTypeFilterValue] = useState<string>("");
 
-    const [workUnits_categories_filter, setWorkUnits_categories_filter] = useState<string[]>([]);
-    const [workUnits_types_filter, setWorkUnits_types_filter] = useState<string[]>([]);
+    const [workUnits_categories_filter, setWorkUnits_categories_filter] = useState<filterObject>({});
+    const [workUnits_types_filter, setWorkUnits_types_filter] = useState<filterObject>({});
 
     const navigate = useNavigate();
 
 
     const addCategoryFilter = (category: string) =>{
-        workUnits_categories_filter.push(category);
-        setWorkUnits_categories_filter(workUnits_categories_filter);
+        //prekopiruj pole a vyhod prvek, ktery se odebira
+        const filterObject = {...workUnits_categories_filter,[category]:true};
+        setWorkUnits_categories_filter(filterObject);
     }
+    const removeCategoryFilter = (category: string) =>{
+        //const filters = workUnits_categories_filter.filter((filterValue)=>{filterValue!=category});
+        setWorkUnits_categories_filter({});
+    }
+    const removeTypeFilter = (type: string) =>{
+        //const filters = workUnits_types_filter.filter((filterValue)=>{filterValue!=type});
+        setWorkUnits_types_filter({});
 
+    }
     const addTypeFilter = (type: string) =>{
-        workUnits_types_filter.push(type);
-        setWorkUnits_types_filter(workUnits_types_filter);
+        const filterObject = {...workUnits_types_filter,[type]:true};
+
+        setWorkUnits_types_filter(filterObject);
     }
     const createBubble = (text:string):ReactNode =>{
         return (
@@ -60,10 +73,10 @@ const Activities = () => {
             </Container>
           );
     }
-    const createFilterBubbles = (filters: string[]):ReactNode =>{
-        const bubbles = filters.map((bubbleText)=>{
-            return (createBubble(bubbleText));
-        })
+    const createFilterBubbles = (filters: filterObject):ReactNode =>{
+        const bubbles: ReactNode[] = [];
+        const keys = Object.keys(filters);
+        keys.forEach((filterText)=>{bubbles.push(createBubble(filterText));});
         return (
             <Container className="align-items-center">
                 {bubbles}
@@ -124,6 +137,15 @@ const Activities = () => {
             fetchActivityData();
         }
     }, [selectedProjectId]);
+
+    useEffect(()=>{
+        //invalid application state
+        if(!selectedActivity){
+            return;
+        }
+        fetchActivityWorkUnits(selectedActivity);
+    },[workUnits_categories_filter,workUnits_types_filter,setWorkUnits_categories_filter,setWorkUnits_types_filter])
+
     const createWorkUnitMap = (workUnits:WorkUnitDto[]) =>{
         const map:wuIdMap = {};
         for(let i = 0; i < workUnits.length; i++){
@@ -131,7 +153,7 @@ const Activities = () => {
         }
         setWorkUnitsIds(map);
     }
-    const handleActivitySelect = async (event:any, act: ActivityDto) => {
+    const fetchActivityWorkUnits = async ( act: ActivityDto) => {
         const response = await fetchWorkUnits(selectedProjectId,workUnits_categories_filter,workUnits_types_filter);
         // const selectedActivity = event.target.id;
         setSelectedActivity(act);
@@ -177,7 +199,7 @@ const Activities = () => {
                                    <td>{act.externalId === undefined ? ("") : (act.externalId)}</td>
                                    <td>{act.startDate === undefined ? ("") : (act.startDate)}</td>
                                    <td>{act.endDate === undefined ? ("") : (act.endDate)}</td>
-                                   <td><Button variant="info" id={String(act.externalId)} onClick={(event)=>{handleActivitySelect(event,act);}}>Select activity</Button></td>
+                                   <td><Button variant="info" id={String(act.externalId)} onClick={(event)=>{fetchActivityWorkUnits(act);}}>Select activity</Button></td>
                                </tr>
                            );
                         })
@@ -250,20 +272,14 @@ const Activities = () => {
             let message : string = unchangedWorkUnits+unchangedWorkUnitsIds.join(",");
             setErrorMessage(message);
         }
+        fetchActivityWorkUnits(selectedActivity);
 
     };
-
-    const createCategoryFilter = () => {
-
-    }
 
     const drawWorkUnitsTable = ():ReactNode => {
         return (
             <div>
                 <h3>Work Units</h3>
-
-
-
                 <Button type={"button"} onClick={handleAssignActivitySubmit}>Assign selected activity</Button>
                 <Table>
                     <thead>
@@ -320,9 +336,8 @@ const Activities = () => {
                                     </option>
                                     ))}
                                 </Form.Control>
-                                    <Button variant="dark" onClick={()=>{
-                                        let value = document.getElementById("categorySelector");
-                                    }}> Add category filter</Button>
+                                    <Button variant="dark" onClick={()=>{addCategoryFilter(categoryFilterValue);}}>
+                                         Add category filter</Button>
                                 </Container>
                             ) : (
                                 <option value="" >No Category in the Activity</option>
@@ -340,7 +355,7 @@ const Activities = () => {
                                 <Form.Control
                                     as="select"
                                     name="selectedType"
-                                    onChange={event => {console.log("tady")}}
+                                    onChange={event => {setTypeFilterValue(event.target.value);}}
                                     id="typeSelector">
                                     
                                     {workUnits_types.map(type => (
@@ -351,7 +366,7 @@ const Activities = () => {
                                 </Form.Control>
                                 </Col>
                                 <Col sm={2}>
-                                <Button variant="dark"> Add type filter</Button>
+                                <Button variant="dark" onClick={()=>{addTypeFilter(typeFilterValue);}}> Add type filter</Button>
                                 </Col>
                             </Container>
                         ) : (
