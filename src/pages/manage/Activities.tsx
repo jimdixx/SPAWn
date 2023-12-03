@@ -58,6 +58,8 @@ const Activities = () => {
         setWorkUnits_types_filter(filterObject);
     }
     const createBubble = (text:string):ReactNode =>{
+        if(!text)
+            return;
         return (
             <Container>
               <Row >
@@ -231,7 +233,7 @@ const Activities = () => {
                 {selectedActivityNode}
                 </Col>
                 <Col sm={4}>
-                    <Button variant="dark" onClick={()=>{setIsActivitySelected(false);}}>Choose different activity</Button>
+                    <Button variant="dark" onClick={()=>{setIsActivitySelected(false); setSelectedActivity(undefined);setWorkUnits_categories_filter({});setWorkUnits_types_filter({});}}>Choose different activity</Button>
                 </Col>
             </Row>
         </div>)
@@ -329,18 +331,26 @@ const Activities = () => {
                                     as="select"
                                     name="selectedCategory"
                                     id="categorySelector"
+                                    onChange={event => {
+                                        //placeholder value - not actual filter
+                                        if(!event.target.value){
+                                            return;
+                                        }
+                                        setCategoryFilterValue(event.target.value);}}
                                 >
+                                    <option value="">Choose work unit category filter</option>
                                     {workUnits_categories.map(category => (
                                         <option key={category} value={category}>
                                             {category}
                                     </option>
                                     ))}
                                 </Form.Control>
-                                    <Button variant="dark" onClick={()=>{addCategoryFilter(categoryFilterValue);}}>
+                                    <Button variant="dark" onClick={()=>{
+                                        addCategoryFilter(categoryFilterValue);}}>
                                          Add category filter</Button>
                                 </Container>
                             ) : (
-                                <option value="" >No Category in the Activity</option>
+                                <option value="" disabled>No Category in the Activity</option>
                             )}
                     </Form.Group>
                 </Col>
@@ -355,9 +365,13 @@ const Activities = () => {
                                 <Form.Control
                                     as="select"
                                     name="selectedType"
-                                    onChange={event => {setTypeFilterValue(event.target.value);}}
+                                    onChange={event => {
+                                        if(!event.target.value){
+                                            return;
+                                        }
+                                        setTypeFilterValue(event.target.value);}}
                                     id="typeSelector">
-                                    
+                                    <option value="">Choose work unit type filter</option>
                                     {workUnits_types.map(type => (
                                         <option key={type} value={type}>
                                             {type}
@@ -370,7 +384,7 @@ const Activities = () => {
                                 </Col>
                             </Container>
                         ) : (
-                            <option value="" >No Types in the Activity</option>
+                            <option value="" disabled>No Types in the Activity</option>
                         )}
                     </Form.Group>
                 </Col>
