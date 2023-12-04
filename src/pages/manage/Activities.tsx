@@ -44,12 +44,15 @@ const Activities = () => {
         setWorkUnits_categories_filter(filterObject);
     }
     const removeCategoryFilter = (category: string) =>{
-        //const filters = workUnits_categories_filter.filter((filterValue)=>{filterValue!=category});
-        setWorkUnits_categories_filter({});
+        delete workUnits_categories_filter[category];
+        //nutno zmenit ref. promennou, jinak to nevystreli change state event
+        const newState ={...workUnits_categories_filter}
+        setWorkUnits_categories_filter(newState);
     }
     const removeTypeFilter = (type: string) =>{
-        //const filters = workUnits_types_filter.filter((filterValue)=>{filterValue!=type});
-        setWorkUnits_types_filter({});
+        delete workUnits_types_filter[type];
+        const newState ={...workUnits_types_filter}
+        setWorkUnits_types_filter(newState);
 
     }
     const addTypeFilter = (type: string) =>{
@@ -61,18 +64,16 @@ const Activities = () => {
         if(!text)
             return;
         return (
-            <Container>
-              <Row >
+            
                 <Col xs="auto">
                   {/* Small div with rounded corners */}
-                  <div className="bg-secondary text-white p-1 rounded">
+                  <div className="bg-secondary text-white p-0.25 rounded">
                     <span>{text}</span>
                     <CloseButton onClick={()=>{removeFunction(text);}}/>
                   </div>
                 </Col>
                 
-              </Row>
-            </Container>
+            
           );
     }
     const createFilterBubbles = (filters: filterObject, removeFunction:Function):ReactNode =>{
@@ -80,7 +81,7 @@ const Activities = () => {
         const keys = Object.keys(filters);
         keys.forEach((filterText)=>{bubbles.push(createBubble(filterText,removeFunction));});
         return (
-            <Container className="align-items-center">
+            <Container className="d-flex align-items-center gap-3">
                 {bubbles}
             </Container>
         )
