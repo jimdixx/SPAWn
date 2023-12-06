@@ -21,8 +21,9 @@ export interface UnitsData {
 }
 
 export const fetchWorkUnits = async (projectId: number | undefined, category_filter:filterObject, type_filter:filterObject): Promise<API_RESPONSE> => {
+    //pouziju ";" jako delimiter, protoze "," se objevuje v datech - nedokazu rozparsovat na serveru smysluplne
     const data:{} = JSON.stringify({projectId:projectId,
-        category:Object.keys(category_filter),type:Object.keys(type_filter)
+        category:Object.keys(category_filter).join(";"),type:Object.keys(type_filter)
     });
     return await ApiCaller(data, WORKUNIT_URL, HTTP_METHOD.GET);
 }

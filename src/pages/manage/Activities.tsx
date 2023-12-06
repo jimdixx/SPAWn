@@ -169,6 +169,9 @@ const Activities = () => {
                 setErrorMessage(`Activity ${act.name} doesn´t contain any work units.`)
                 return;
             }
+            else{
+                setErrorMessage("");
+            }
             setWorkUnits(fetchedData.units);
             createWorkUnitMap(fetchedData.units);
             setWorkUnits_categories(fetchedData.unit_distinct_categories);
