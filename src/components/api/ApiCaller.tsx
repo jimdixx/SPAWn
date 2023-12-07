@@ -6,8 +6,9 @@ export enum HTTP_METHOD {
     "GET",
     "PUT"
 }
+
 interface getParamsObject {
-    [key:string]:string
+    [key:string]:string|string[]|number[]
 }
 const createGetParams = (body: any): string => {
     let data = body;
@@ -21,11 +22,15 @@ const createGetParams = (body: any): string => {
     let params:string = "?";
     for(let i = 0; i < keys.length; i++){
         const key = keys[i];
-        params += `${key}=${data[key]}`;
+        let value = data[key];
+        if(Array.isArray(value))
+            value = value.join(",");
+        
+        if(value)
+            params += `${key}=${value}&`;
     }
     return params;
 }
-
 
 const doApiCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) => {
     switch (httpMethod) {
@@ -74,7 +79,7 @@ export interface API_RESPONSE {
     }
 }
 
-const   doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<API_RESPONSE> => {
+const  doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<API_RESPONSE> => {
 
         let response;
         try {
