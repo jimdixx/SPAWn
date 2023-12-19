@@ -7,6 +7,7 @@ import {Alert, Button, Spinner} from "react-bootstrap";
 import {getConfigurationNameFromLocalstorage} from "../components/helperFunctions/ConfigurationSelectEvent";
 import {retrieveUsernameFromStorage} from "../context/LocalStorageManager";
 import {sendProjectsForAnalysation} from "../api/APIDetect";
+import {useAuth} from "react-oidc-context";
 
 interface Project {
     id:number,
@@ -38,10 +39,14 @@ const Detect = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
+    const auth = useAuth();
 
     const fetchProjectsAndAntipatterns = async () => {
-        const response: API_RESPONSE  = await ApiCaller({},"http://localhost:8080/v2/detect/list", HTTP_METHOD.GET);
+
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response: API_RESPONSE  = await ApiCaller({},"http://localhost:8080/v2/detect/list", HTTP_METHOD.GET, token);
 
         if(response.redirect) {
             navigate(response.redirect);
@@ -107,27 +112,7 @@ const Detect = () => {
         }
 
     }
-/*
-     const handleProjectCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-         // code to handle project checkbox change
-         const projectId : number = +e.target.value; //retype value to number
-         setChecked(projectId, selectedProjects);
 
-         const checkbox:HTMLInputElement | null = document.getElementById("select_all_projects") as HTMLInputElement;
-
-         setQuickSelectState(checkbox, selectedProjects, projectCount);
-     };
-
-     const handleAntiPatternCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-         // code to handle anti-pattern checkbox change
-         const antiPatternId : number = +e.target.value; //retype value to number
-         setChecked(antiPatternId, selectedAntiPatterns);
-
-         const checkbox:HTMLInputElement | null = document.getElementById("select_all_anti_patterns") as HTMLInputElement;
-
-         setQuickSelectState(checkbox, selectedAntiPatterns, patternCount);
-     };
-*/
     const handleQuickSelectAll = (e: React.ChangeEvent<HTMLInputElement>, projects:boolean) => {
         projects?
             flipCheckBoxes("select_all_projects","project_", selectedProjects)
@@ -176,13 +161,6 @@ const Detect = () => {
             }
         }
 
-        //no project are checked
-        // if (selectedProjectIds.length == 0) {
-        //     console.log("zadne projekty");
-        //     setErrorMessage("No projects were selected!");
-        //     setLoading(false);
-        //     return;
-        // }
 
         //push all selected antipatterns
         for(let i = 0; i < selectedAntiPatterns.length; i++) {
@@ -191,13 +169,6 @@ const Detect = () => {
             }
         }
 
-        //no anti-patterns are checked
-        // if (selectedAntiPatternIds.length == 0) {
-        //     console.log("zadne paterny");
-        //     setErrorMessage("No anti-paterns were selected!");
-        //     setLoading(false);
-        //     return;
-        // }
 
         const body = {
             "configurationId" : configurationId,
@@ -206,7 +177,10 @@ const Detect = () => {
             "selectedAntipatterns":selectedAntiPatternIds
         }
 
-        const response = await sendProjectsForAnalysation(body);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await sendProjectsForAnalysation(body, token);
         console.log(response);
 
         if(response.redirect) {

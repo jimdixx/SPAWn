@@ -13,12 +13,12 @@ export interface ProjectData {
     parent?: ProjectData
 }
 
-export const fetchProjects = async (username?:string): Promise<API_RESPONSE> => {
+export const fetchProjects = async (token: string, username?:string): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({name:username});
-    return await ApiCaller(data, PROJECT_URL, HTTP_METHOD.GET);
+    return await ApiCaller(data, PROJECT_URL, HTTP_METHOD.GET, token);
 }
 
-export const saveProjects = (username?: string, projectsData?: ProjectData[]): Promise<API_RESPONSE> => {
+export const saveProjects = (token: string, username?: string, projectsData?: ProjectData[]): Promise<API_RESPONSE> => {
     // iterate over projects and remove parent property - causes cycling
     const modifiedDataArray = removeParentPropertiesFromArray(projectsData);
 
@@ -27,7 +27,7 @@ export const saveProjects = (username?: string, projectsData?: ProjectData[]): P
         projects: modifiedDataArray,
     };
 
-    return ApiCaller(data, SAVE_PROJECTS_URL, HTTP_METHOD.POST);
+    return ApiCaller(data, SAVE_PROJECTS_URL, HTTP_METHOD.POST, token);
 }
 
 const removeParentProperty = (data: ProjectData): ProjectData => {

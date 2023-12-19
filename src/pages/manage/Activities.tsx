@@ -9,6 +9,7 @@ import CheckboxInput from "../../components/input/CheckboxInput";
 import Input from "../../components/input/Input";
 
 import {Container, Button, Alert, Form, Col, Table, Row, CloseButton} from "react-bootstrap";
+import {useAuth} from "react-oidc-context";
 
 interface wuIdMap {
     [key:string] : number
@@ -36,7 +37,7 @@ const Activities = () => {
     const [workUnits_types_filter, setWorkUnits_types_filter] = useState<filterObject>({});
 
     const navigate = useNavigate();
-
+    const auth = useAuth();
 
     const addCategoryFilter = (category: string) =>{
         //prekopiruj pole a vyhod prvek, ktery se odebira
@@ -90,7 +91,7 @@ const Activities = () => {
 
     // Fetching projects data
     const fetchProjectsData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -98,7 +99,11 @@ const Activities = () => {
 
         setUserName(userName);
 
-        const response = await fetchProjects(userName);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+
+        const response = await fetchProjects(token, userName);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -111,7 +116,10 @@ const Activities = () => {
 
     // Fetching persons data
     const fetchActivityData = async () => {
-        const response = await fetchActivities(selectedProjectId);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchActivities(selectedProjectId, token);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -157,7 +165,10 @@ const Activities = () => {
         setWorkUnitsIds(map);
     }
     const fetchActivityWorkUnits = async ( act: ActivityDto) => {
-        const response = await fetchWorkUnits(selectedProjectId,workUnits_categories_filter,workUnits_types_filter);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchWorkUnits(token, selectedProjectId,workUnits_categories_filter,workUnits_types_filter);
         // const selectedActivity = event.target.id;
         setSelectedActivity(act);
         setIsActivitySelected(true);
@@ -269,7 +280,11 @@ const Activities = () => {
             wuIds.push(parseInt(checkBoxElement.id));
         })
         const body = {activityId:activityId, wuIds:wuIds};
-        const response = await updateWuActivity(body);
+
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await updateWuActivity(body, token);
         if(changedWorkUnitsIds.length){
             let message : string = changedWorkUnits+changedWorkUnitsIds.join(",");
             setSuccessMessage(message);

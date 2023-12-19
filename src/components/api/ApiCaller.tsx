@@ -32,15 +32,15 @@ const createGetParams = (body: any): string => {
     return params;
 }
 
-const doApiCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) => {
+const doApiCall = async (data: {}, url: string, httpMethod: HTTP_METHOD, token: string) => {
     switch (httpMethod) {
         case HTTP_METHOD.POST:
-            return await axiosPrivate().post(url, data);
+            return await axiosPrivate(token).post(url, data);
         case HTTP_METHOD.GET:
             const params = createGetParams(data);
-            return await axiosPrivate().get(url+params);
+            return await axiosPrivate(token).get(url+params);
         case HTTP_METHOD.PUT:
-            return await axiosPrivate().put(url,data);
+            return await axiosPrivate(token).put(url,data);
     }
 }
 
@@ -79,11 +79,11 @@ export interface API_RESPONSE {
     }
 }
 
-const  doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD) : Promise<API_RESPONSE> => {
+const  doCall = async (data: {}, url: string, httpMethod: HTTP_METHOD, token: string) : Promise<API_RESPONSE> => {
 
         let response;
         try {
-            response = await doApiCall(data, url, httpMethod);
+            response = await doApiCall(data, url, httpMethod, token);
         } catch (error: any) {
             response = error.response;
         }

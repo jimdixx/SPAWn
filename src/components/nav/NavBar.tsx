@@ -3,14 +3,13 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
-import {useIsAuthenticated} from "react-auth-kit";
-import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
+import {Button} from "react-bootstrap";
+import { useAuth } from "react-oidc-context"
 import {fetchConfigurationNames} from "../../api/APIConfiguration";
 import {useQuery} from "react-query";
 import Form from 'react-bootstrap/Form';
 import {useNavigate} from "react-router-dom";
 import {Spinner} from 'react-bootstrap';
-import {ConfigurationEntry} from "../../pages/configuration/Configuration"
 import "./style.css"
 
 import {
@@ -26,7 +25,7 @@ const NavBar = () => {
     const [userName, setUserName] = useState("");
     const [loadingConfigurations, setLoadingConfigurations] = useState(true);
     const [loadingUserInfo, setLoadingUserInfo] = useState(true);
-    const authenticated = useIsAuthenticated();
+    const authenticated = useAuth();
     const navigate = useNavigate();
     const createOptions = () => {
         let configurationId: string | undefined = getConfigurationNameFromLocalstorage();
@@ -69,7 +68,11 @@ const NavBar = () => {
 
     // fetch configuration names from server to be rendered in select
     const fetchConfigurationName = async () => {
-        const response = await fetchConfigurationNames(userName);
+        let token = authenticated?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchConfigurationNames(userName, token);
+        console.log(response);
         if (response.redirect) {
             navigate(response.redirect);
             return;
@@ -81,9 +84,13 @@ const NavBar = () => {
 
     //read username from localstorage - only invoked when username is authed.
     const fetchUserName = () => {
-        const userName = retrieveUsernameFromStorage();
+        const userName = authenticated?.user?.profile?.preferred_username;
+
         setLoadingUserInfo(false);
-        setUserName(userName);
+
+        if (userName) {
+            setUserName(userName);
+        }
     }
 
 
@@ -94,8 +101,20 @@ const NavBar = () => {
         enabled: !!userName
     });
 
+    const isUser = (): boolean => {
+        const user = authenticated.user;
+
+        // Check if user is defined and not null or undefined
+        if (user) {
+            console.log("true");
+            return true;
+        }
+
+        return false;
+    }
+
     useEffect(() => {
-        const isAuthed = authenticated();
+        const isAuthed = isUser();
         setAuthenticated(isAuthed);
 
         if (isAuthed) {
@@ -104,23 +123,25 @@ const NavBar = () => {
             setUserName("");
             setAuthenticated(false);
         }
-    }, [authenticated, isAuthenticated])
+    }, [authenticated, fetchUserName, isAuthenticated, isUser])
 
 
     useEffect(() => {
-        //user is not logged in, do nothing
+        // user is not logged in, do nothing
         if (!data) {
             setAuthenticated(false);
             setLoadingConfigurations(false);
             setLoadingUserInfo(false);
             return;
         }
+
         const responseData = data.data as { message: string, configuration_names: string[], configuration_ids: string[] };
-        const configurationNames: string[] = responseData.configuration_names;
-        const configurationIds: string[] = responseData.configuration_ids;
+        const configurationNames: string[] = responseData.configuration_names || [];
+        const configurationIds: string[] = responseData.configuration_ids || [];
         setNames(configurationNames);
         setIds(configurationIds);
-    }, [data, configurationNames]);
+        setLoadingConfigurations(false);  // Set loading to false when configurations are loaded
+    }, [data]);
 
 
     return (
@@ -131,6 +152,7 @@ const NavBar = () => {
                 <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
                 <Navbar.Collapse id="responsive-navbar-nav text-white">
                     <Nav className="me-auto text-white">
+                        <Nav.Link href="/test" className="text-white">Test</Nav.Link>
                         <Nav.Link href="/detect" className="text-white">Detect</Nav.Link>
                         <Nav.Link href="/configuration" className="text-white">Configuration</Nav.Link>
                         <Nav.Link href="/about" className="text-white">About</Nav.Link>
@@ -163,10 +185,13 @@ const NavBar = () => {
                                         <span style={{marginRight: "1em", marginLeft: "1em"}}>
                                             <i className={"fa fa-user"} style={{color: "red"}}/> {userName}
                                         </span>
-                                            <Nav.Link href="/logout"><i className={"fa fa-sign-out"}
-                                                                        style={{color: "red"}}/> Logout</Nav.Link>
                                         </>
                                     )}
+                                    <Button
+                                        onClick={() => authenticated.signoutRedirect()}
+                                    >
+                                        Logout
+                                    </Button>
                                 </>
                             )
                             : (

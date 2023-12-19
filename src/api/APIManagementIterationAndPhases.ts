@@ -24,14 +24,14 @@ export interface IterationAndPhases {
 }
 
 
-export const fetchIterationsAndPhases = async (projectId:string): Promise<API_RESPONSE> => {
+export const fetchIterationsAndPhases = async (projectId:string, token: string): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({projectId:projectId});
-    const response: API_RESPONSE = await ApiCaller(data, MANAGMENT + ITERATIONS_AND_PHASES_URL, HTTP_METHOD.GET);
+    const response: API_RESPONSE = await ApiCaller(data, MANAGMENT + ITERATIONS_AND_PHASES_URL, HTTP_METHOD.GET, token);
     return response;
 }
 
-export const sendIterationOrPhase = async (Ids:string[], uri:string): Promise<API_RESPONSE> => {
+export const sendIterationOrPhase = async (Ids:string[], uri:string, token: string): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({Ids:Ids});
-    const response: API_RESPONSE = await ApiCaller(data, MANAGMENT + uri, HTTP_METHOD.POST);
+    const response: API_RESPONSE = await ApiCaller(data, MANAGMENT + uri, HTTP_METHOD.POST, token);
     return response;
 }

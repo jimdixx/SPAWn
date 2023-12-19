@@ -14,6 +14,7 @@ import {
 } from "../../api/APIManagementIterationAndPhases";
 import IterationPhase from "../../components/manage/IterationPhase";
 import {TableItem} from "../../components/manage/IterationPhase";
+import {useAuth} from "react-oidc-context";
 
 interface API_RESPONSE_MESSAGE {
     informMessage?: string,
@@ -47,9 +48,11 @@ const Iterations = () => {
     const [areIterationPhasesLoaded, setAreIterationPhasesLoaded] = useState(false);
     const navigate = useNavigate();
 
+    const auth = useAuth();
+
     // Fetching projects data
     const fetchProjectsData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -57,7 +60,11 @@ const Iterations = () => {
 
         setUserName(userName);
 
-        const response = await fetchProjects(userName);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+
+        const response = await fetchProjects(token, userName);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -153,7 +160,10 @@ const Iterations = () => {
         setModalHeader("");
         setErrorMessage("");
 
-        const response:API_RESPONSE_Object = await sendIterationOrPhase(body, ITERATIONS) as API_RESPONSE_Object;
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response:API_RESPONSE_Object = await sendIterationOrPhase(body, ITERATIONS, token) as API_RESPONSE_Object;
         handleResponse(response);
     };
 
@@ -166,7 +176,10 @@ const Iterations = () => {
         setModalHeader("");
         setErrorMessage("");
 
-        const response:API_RESPONSE_Object = await sendIterationOrPhase(body, PHASES) as API_RESPONSE_Object;
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response:API_RESPONSE_Object = await sendIterationOrPhase(body, PHASES, token) as API_RESPONSE_Object;
         handleResponse(response);
     };
 
@@ -183,7 +196,7 @@ const Iterations = () => {
     }
 
     const fetchIterationAndPhasesData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -194,7 +207,11 @@ const Iterations = () => {
             setErrorMessage("No project selected. Please select a project.");
             return;
         }
-        const response = await fetchIterationsAndPhases(selectedProjectId.toString());
+
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchIterationsAndPhases(selectedProjectId.toString(), token);
 
         if (response.redirect) {
             navigate(response.redirect);

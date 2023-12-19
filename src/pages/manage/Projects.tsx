@@ -6,6 +6,7 @@ import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import Project from "../../components/manage/Project";
 import { Spinner, Container, Row, Col, Button, Form, Alert } from "react-bootstrap";
 import { Spin } from 'antd';
+import {useAuth} from "react-oidc-context";
 
 const Projects = () => {
     const [projectData, setProjectData] = useState<ProjectData[]>([]);
@@ -20,11 +21,11 @@ const Projects = () => {
     const [wasChanged, setWasChanged] = useState(false);
     const [errMsg, setErrMsg] = useState('');
     const [sucMsg, setSucMsg] = useState('');
-
+    const auth = useAuth();
 
     // Fetching projects data
     const fetchData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if(!userName) {
             return;
@@ -32,7 +33,10 @@ const Projects = () => {
 
         setUserName(userName);
 
-        const response = await fetchProjects(userName);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchProjects(token, userName);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -239,7 +243,7 @@ const Projects = () => {
         setErrMsg('');
         setSucMsg('');
 
-        const userName = retrieveUsernameFromStorage();
+        const userName = auth?.user?.profile?.preferred_username;
         if (!userName) {
             return;
         }
@@ -247,7 +251,10 @@ const Projects = () => {
         setUserName(userName);
         setIsSaving(true);
 
-        saveProjects(userName, projectData[0].children)
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        saveProjects(token, userName, projectData[0].children)
             .then(response => {
                 setSucMsg('Projects structure saved successfully.');
             })

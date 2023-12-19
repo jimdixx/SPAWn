@@ -4,6 +4,7 @@ import {useNavigate} from "react-router-dom";
 import {fetchProjects, fetchPersons, Projects, Persons, Identity, mergePersons} from "../../api/APIManagementPerson";
 import {retrieveUsernameFromStorage} from "../../context/LocalStorageManager";
 import {Container, Button, Alert, Form, Col, InputGroup, FormControl} from "react-bootstrap";
+import {useAuth} from "react-oidc-context";
 
 const Person = () => {
     const [errorMessage, setErrorMessage] = useState("");
@@ -23,9 +24,11 @@ const Person = () => {
     const [isAnyCheckboxSelected, setIsAnyCheckboxSelected] = useState(false);
     const navigate = useNavigate();
 
+    const auth = useAuth();
+
     // Fetching projects data
     const fetchProjectsData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -33,7 +36,11 @@ const Person = () => {
 
         setUserName(userName);
 
-        const response = await fetchProjects(userName);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+
+        const response = await fetchProjects(token, userName);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -45,7 +52,8 @@ const Person = () => {
 
     // Fetching persons data
     const fetchPersonsData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -53,7 +61,10 @@ const Person = () => {
 
         setUserName(userName);
 
-        const response = await fetchPersons(userName, selectedProjectId);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchPersons(token, userName, selectedProjectId);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -156,7 +167,10 @@ const Person = () => {
                return;
            }
 
-           response = await mergePersons(selectedProjectId, selectedPersons, undefined, newName);
+            let token = auth?.user?.access_token;
+            if (!token) token = "";
+
+           response = await mergePersons(token, selectedProjectId, selectedPersons, undefined, newName);
         }
         else if (selectedRadio === 2 || selectedRadio === 3) {
             // "Select from people/identities" is selected
@@ -172,7 +186,10 @@ const Person = () => {
             const selectedPerson = selectedPersons[selectedIndex];
             //console.log("Selected person:", selectedPerson);
 
-            response = await mergePersons(selectedProjectId, selectedPersons, selectedPerson, undefined);
+            let token = auth?.user?.access_token;
+            if (!token) token = "";
+
+            response = await mergePersons(token, selectedProjectId, selectedPersons, selectedPerson, undefined);
         }
 
         await fetchPersonsData();

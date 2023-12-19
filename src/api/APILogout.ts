@@ -4,7 +4,7 @@ import {AxiosInstance} from "axios";
 const LOGOUT_URL = '/user/logout';
 export const logoutUser = async (username:string)=>{
     if(!username)return false;
-    const el: AxiosInstance | null = axiosPrivate();
+    const el: AxiosInstance | null = axiosPrivate(null);
 
     const response = el?.post(LOGOUT_URL,{name: username});
     console.log(response);

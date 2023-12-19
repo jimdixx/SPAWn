@@ -11,12 +11,12 @@ export interface ActivityDto {
     id: number
 }
 
-export const fetchActivities = async (projectId: number | undefined): Promise<API_RESPONSE> => {
+export const fetchActivities = async (projectId: number | undefined, token: string): Promise<API_RESPONSE> => {
     const data:{} = JSON.stringify({projectId:projectId});
-    return await ApiCaller(data, ACTIVITY_URL, HTTP_METHOD.GET);
+    return await ApiCaller(data, ACTIVITY_URL, HTTP_METHOD.GET, token);
 }
-export const updateWuActivity = async(body:{activityId:number, wuIds:number[]}) =>{
+export const updateWuActivity = async(body:{activityId:number, wuIds:number[]}, token: string) =>{
     const data:{} = JSON.stringify(body);
-    return await ApiCaller(data, WU_UPDATE_RUL, HTTP_METHOD.PUT);
+    return await ApiCaller(data, WU_UPDATE_RUL, HTTP_METHOD.PUT, token);
 
 }

@@ -2,10 +2,11 @@
   "name": "spawn",
   "version": "1.0.0",
   "private": true,
-  "authors": [{
-    "name": "Petr Urban",
-    "email": "urbanp@students.zcu.cz"
-  },
+  "authors": [
+    {
+      "name": "Petr Urban",
+      "email": "urbanp@students.zcu.cz"
+    },
     {
       "name": "Jiří Trefil",
       "email": "trefil@students.zcu.cz"
@@ -39,6 +40,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
+    "react-oidc-context": "^3.0.0-beta.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.10.0",
     "react-scripts": "5.0.1",

@@ -26,23 +26,19 @@ export interface AdditionalFields {
     message: string | null;
 }
 
-export const fetchProjectsList = async (username?:string): Promise<API_RESPONSE> => {
-    return await fetchProjects(username);
-}
-
-export const fetchCategories = async (username?:string, prjId?:number): Promise<API_RESPONSE> => {
+export const fetchCategories = async (token: string, username?:string, prjId?:number): Promise<API_RESPONSE> => {
     const data = {
         name: username,
         projectId: prjId,
     };
-    return await ApiCaller(data, CATEGORIES_URL, HTTP_METHOD.POST);
+    return await ApiCaller(data, CATEGORIES_URL, HTTP_METHOD.POST, token);
 }
 
-export const requestChangeCategories = async (categoriesArr?:Category[], subType?:number, prjId?:number): Promise<API_RESPONSE> => {
+export const requestChangeCategories = async (token: string, categoriesArr?:Category[], subType?:number, prjId?:number): Promise<API_RESPONSE> => {
     const data = {
         categories: categoriesArr,
         submitType: subType,
         projectId: prjId,
     };
-    return await ApiCaller(data, CATEGORIES_CHANGE_URL, HTTP_METHOD.POST);
+    return await ApiCaller(data, CATEGORIES_CHANGE_URL, HTTP_METHOD.POST, token);
 }

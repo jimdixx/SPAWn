@@ -75,7 +75,7 @@ const TOKEN_URL = "/user/refresh";
 
     const refreshToken = async ()=>{
     //token is still valid but is about to expire - refresh it
-        const el: AxiosInstance | null = axiosPrivate();
+        const el: AxiosInstance | null = axiosPrivate(null);
         //server fault, we are all going to die here
         if (el == null) {
             return false;
@@ -95,7 +95,7 @@ const TOKEN_URL = "/user/refresh";
         }
         saveToLocalStorage("user_info",value);
     }
-    export const retrieveBearerCookie = () =>{
+    export const retrieveBearerCookie = () => {
 
         const cookieName = "token";
         //cookies are stored as one single string in browser separated by ';' delimiter

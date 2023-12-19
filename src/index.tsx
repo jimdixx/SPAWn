@@ -4,39 +4,41 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
-//third party library that manages authentication
-import {AuthProvider} from "react-auth-kit"
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { QueryClient, QueryClientProvider } from 'react-query'
+import {QueryClient, QueryClientProvider} from 'react-query'
+import {AuthProvider} from "react-oidc-context";
+
 const queryClient = new QueryClient();
-const initializeApp = async() =>{
-    //[JT]
-    //auth type can be cookie or localstorage
-    //cookie is safer but localstorage can be used aswell
-    root.render(
-        <React.Suspense>
-            <QueryClientProvider client={queryClient}>
-            <AuthProvider
-                authType={"cookie"}
-                authName={"token"}
-                cookieDomain={window.location.hostname}
-                cookieSecure={false}
-            >
-                <App />
-            </AuthProvider>
-            </QueryClientProvider>
-        </React.Suspense>
-    );
-}
-
-
-
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
-initializeApp();
+
+
+const oidcConfig = {
+    authority: "http://localhost:9080/auth/realms/spade",
+    client_id: "spade-client",
+    redirect_uri: "http://localhost:3000",
+    onSigninCallback: () => {
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        )
+    }
+}
+
+root.render(
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider {...oidcConfig}>
+                <React.StrictMode>
+                    <App/>
+                </React.StrictMode>
+            </AuthProvider>
+        </QueryClientProvider>
+);
+
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

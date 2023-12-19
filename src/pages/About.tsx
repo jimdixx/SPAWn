@@ -23,7 +23,7 @@ const About = () => {
 
     const fetchData = async () => {
 
-        const response: API_RESPONSE  = await ApiCaller({},"http://localhost:8080/v2/app/metadata/about",HTTP_METHOD.GET);
+        const response: API_RESPONSE  = await ApiCaller({},"http://localhost:8080/v2/app/metadata/about",HTTP_METHOD.GET, "");
 
         if(response.redirect){
             navigate(response.redirect);

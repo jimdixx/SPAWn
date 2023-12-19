@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import {Link, useNavigate} from "react-router-dom";
 import {Alert, Button, Col, Container, Form} from "react-bootstrap";
 import {login} from "../../api/APILogin";
-import {useSignIn} from "react-auth-kit";
+// import {useSignIn} from "react-auth-kit";
 import {saveUserInfoToStorage} from "../../context/LocalStorageManager";
 import Logout from "../../pages/Logout";
 import jwt, {JwtPayload} from "jwt-decode";
@@ -11,7 +11,7 @@ import jwtDecode from "jwt-decode";
 const LoginComponent = () => {
     const userRef = useRef<any>();
     const errRef = useRef<any>();
-    const signIn = useSignIn();
+    // const signIn = useSignIn();
     const [user, setUser] = useState('');
     const [pwd, setPwd] = useState('');
     const [errMsg, setErrMsg] = useState('');
@@ -48,12 +48,12 @@ const LoginComponent = () => {
             const expTime = token.exp;
             const expTimeMinutes = Math.floor((expTime - currTime) / 60);
 
-            signIn({
-                token: accessToken,
-                expiresIn: expTimeMinutes,
-                tokenType: "Bearer",
-                authState: {userName: user}
-            });
+            // signIn({
+            //     token: accessToken,
+            //     expiresIn: expTimeMinutes,
+            //     tokenType: "Bearer",
+            //     authState: {userName: user}
+            // });
             const dataToStore = {userName: user};
             //store user date in memory for further use
             saveUserInfoToStorage(JSON.stringify(dataToStore));

@@ -6,6 +6,7 @@ import {fetchProjects, Projects} from "../../api/APIManagementPerson";
 import {Category, fetchCategories, ApiResponse, AdditionalInformation, AdditionalFields, requestChangeCategories } from "../../api/APIManagementCategories";
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "react-query";
+import {useAuth} from "react-oidc-context";
 
 const Categories = () => {
 
@@ -24,6 +25,7 @@ const Categories = () => {
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const auth = useAuth();
 
     const handleCheckboxChange = (id: number) => {
         setSelectedRows(prevSelectedRows => {
@@ -41,7 +43,7 @@ const Categories = () => {
 
     // Fetching projects data
     const fetchProjectsData = async () => {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -49,7 +51,10 @@ const Categories = () => {
 
         setUserName(userName);
 
-        const response = await fetchProjects(userName);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchProjects(token, userName);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -60,7 +65,7 @@ const Categories = () => {
     };
 
     const fetchCategoriesData = async () => {
-        const userName: string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
 
         if (!userName) {
             return;
@@ -68,7 +73,10 @@ const Categories = () => {
 
         setUserName(userName);
 
-        const response = await fetchCategories(userName, selectedProjectId);
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await fetchCategories(token, userName, selectedProjectId);
 
         if (response.redirect) {
             navigate(response.redirect);
@@ -124,7 +132,11 @@ const Categories = () => {
 
     // handle change request
     const handleChangeRequest = async (categories:Category[], subType:number, prjId?:number) => {
-        const response = await requestChangeCategories(categories, subType, prjId);
+
+        let token = auth?.user?.access_token;
+        if (!token) token = "";
+
+        const response = await requestChangeCategories(token, categories, subType, prjId);
 
         if (response.redirect) {
             navigate(response.redirect);

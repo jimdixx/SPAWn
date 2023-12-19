@@ -8,6 +8,7 @@ import Input from "../../components/input/Input";
 import {Row, Col, Container, Button, Alert, Spinner} from 'react-bootstrap';
 import Form from "react-bootstrap/Form";
 import Section from "./Section";
+import {useAuth} from "react-oidc-context";
 
 
 interface ConfigurationWrapper {
@@ -71,6 +72,12 @@ const Configuration = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [configurationName, setConfiguratioName] = useState<string>("");
     const [userName, setUserName] = useState<string>("");
+    const auth = useAuth();
+
+    const getToken = () => {
+        let token = auth?.user?.access_token;
+        return !token ? "" : token;
+    }
 
     /**
      * This method gets data about configuration which is chosen in nav bab
@@ -84,7 +91,8 @@ const Configuration = () => {
         if (!userName || !configurationId) {
             return;
         }
-        const response = await fetchOneConfiguration(userName, configurationId);
+
+        const response = await fetchOneConfiguration(userName, configurationId, getToken());
         if (response.redirect) {
             navigate(response.redirect);
         }
@@ -173,11 +181,11 @@ const Configuration = () => {
             if (configurationId === undefined) {
                 throw new Error("No configuration selected");
             }
-            response = await saveConfiguration(userName,configurationId,configurationDefinition);
+            response = await saveConfiguration(userName,configurationId,configurationDefinition, getToken());
             responseData = response.response.data as {message:string, id:string};
                 
         } else { //creation off new configuration
-            response = await saveNewConfiguration(userName,configurationName,configurationDefinition);
+            response = await saveNewConfiguration(userName,configurationName,configurationDefinition, getToken());
             responseData = response.response.data as {message:string, id:string};
         }
         

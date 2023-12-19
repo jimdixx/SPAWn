@@ -22,11 +22,10 @@ const createUnauthorizedRequest = () => {
 
 //entry point for creating axios instances
 //this 'function' SHOULD always be used when creating HTTP request
-export const axiosPrivate = () => {
+export const axiosPrivate = (token: string | null) => {
    //const token = retrieveJwtToken();
-   const token = retrieveBearerCookie();
    //I dont have a token => my request will be created as unauthorized
-   if(token == null) {
+   if(token == null || token === "") {
       return createUnauthorizedRequest();
    }
    //I have a token => I can have Authorization header in my request with bearer token
