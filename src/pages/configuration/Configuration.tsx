@@ -83,7 +83,11 @@ const Configuration = () => {
      * This method gets data about configuration which is chosen in nav bab
      * */
     const fetchConfiguration = async ()=> {
-        const userName:string = retrieveUsernameFromStorage();
+        const userName:string | undefined = auth?.user?.profile?.preferred_username;
+
+        if (!userName) {
+            return;
+        }
 
         setUserName(userName);
         const configurationId:string|undefined = getConfigurationNameFromLocalstorage();
