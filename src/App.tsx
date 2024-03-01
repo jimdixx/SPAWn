@@ -15,6 +15,12 @@ import Categories from "./pages/manage/Categories";
 import Iterations from "./pages/manage/Iterations";
 import Activities from "./pages/manage/Activities";
 import Release from "./pages/manage/Release";
+import Detecting from "./pages/detecting/Detecting";
+import Detection from "./pages/detecting/Detection";
+import Definition from "./pages/detecting/Definition";
+import Indicators from "./pages/detecting/Indicators";
+import Metrics from "./pages/detecting/Metrics";
+import MetricDetail from "./pages/detecting/MetricDetail";
 import OAuth2PrivateRoute from './context/OAuth2PrivateRoute';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -36,6 +42,12 @@ const App = () => {
                 <Route path="/iterations" element={<OAuth2PrivateRoute><Iterations /></OAuth2PrivateRoute>} />
                 <Route path="/activities" element={<OAuth2PrivateRoute><Activities /></OAuth2PrivateRoute>} />
                 <Route path="/release" element={<OAuth2PrivateRoute><Release /></OAuth2PrivateRoute>} />
+                <Route path="/detecting" element={<OAuth2PrivateRoute><Detecting /></OAuth2PrivateRoute>} />
+                <Route path="/detection" element={<OAuth2PrivateRoute><Detection /></OAuth2PrivateRoute>} />
+                <Route path="/definition" element={<OAuth2PrivateRoute><Definition /></OAuth2PrivateRoute>} />
+                <Route path="/indicators" element={<OAuth2PrivateRoute><Indicators /></OAuth2PrivateRoute>} />
+                <Route path="/metrics" element={<OAuth2PrivateRoute><Metrics /></OAuth2PrivateRoute>} />
+                <Route path="/metricDetail" element={<OAuth2PrivateRoute><MetricDetail /></OAuth2PrivateRoute>} />
                 <Route path="/403" element={<Forbidden />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="/500" element={<InternalServerError />} />

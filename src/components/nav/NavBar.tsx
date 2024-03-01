@@ -66,6 +66,7 @@ const NavBar = () => {
                             <NavDropdown.Divider />
                             <NavDropdown.Item href="/signpost">Signpost</NavDropdown.Item>
                         </NavDropdown>
+                        <Nav.Link href="/detecting" className="text-white">Detecting</Nav.Link>
                     </Nav>
                     {
                         isAuthenticated ?
