@@ -4,6 +4,7 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 const Detecting = () => {
     return (
         <Container>
+            <p>/ <a href="/detecting">Detecting</a></p>
             <h1>Detecting</h1>
             <Row>
                 <Col style={{padding: '20px'}}>
