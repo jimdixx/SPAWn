@@ -1,6 +1,20 @@
 import React, { useState } from "react";
 import { Container, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom"; // Hook pro historii navigace
+import { useNavigate } from "react-router-dom";
+import { Metric, createMetric } from "../../api/detecting/APIDetectingMetrics";
+import { useAuth } from "react-oidc-context";
+import { API_RESPONSE } from "../../components/api/ApiCaller";
+
+interface APIMetricResponse {
+  status: number;
+  data?: Metric;
+}
+
+interface APICreateMetricResponse {
+  redirect?: string;
+  response?: APIMetricResponse;
+}
+
 
 const CreateMetric = () => {
     const [formData, setFormData] = useState({
@@ -8,8 +22,8 @@ const CreateMetric = () => {
         description: "",
         sqlQuery: ""
     });
-
-    const navigate = useNavigate(); // Získání instance historie pro navigaci
+    const navigate = useNavigate();
+    const auth = useAuth();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -22,12 +36,37 @@ const CreateMetric = () => {
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Zde by mělo být volání API pro vytvoření nové metriky s formData
-            // Po vytvoření nové metriky získáte ID a můžete přesměrovat uživatele na její detail
-            const createdMetricId = 1; // Předpokládáme získání ID nové metriky z API
+            const token = auth?.user?.access_token;
+            if (!token) return;
 
-            // Přesměrování na detail nově vytvořené metriky
-            navigate(`/metricDetail/${createdMetricId}`);
+            const metricData: Metric = {
+                id: 0,
+                name: formData.name,
+                description: formData.description,
+                sqlQuery: formData.sqlQuery
+            };
+
+
+            const apiResponse: API_RESPONSE = await createMetric(metricData, token);
+            const response: APICreateMetricResponse = {
+              redirect: apiResponse.redirect,
+              response: {
+                status: apiResponse.response.status,
+                data: apiResponse.response.data as Metric | undefined
+              }
+            };
+
+            if (response.redirect) {
+                navigate(response.redirect);
+            } else {
+                const responseData = response.response?.data;
+                if (responseData) {
+                    const createdMetricId = responseData.id;
+                    navigate(`/metricDetail/${createdMetricId}`);
+                } else {
+                    console.error("Invalid response data:", response.response);
+                }
+            }
         } catch (error) {
             console.error("Error creating metric:", error);
         }

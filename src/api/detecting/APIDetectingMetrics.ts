@@ -1,83 +1,52 @@
-// import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../components/api/ApiCaller";
+import ApiCaller, { API_RESPONSE, HTTP_METHOD } from "../../components/api/ApiCaller";
 
-// Zakomentované importy, dokud není implementováno API
-// const ACTIVITY_URL = "/management/activity_list";
-// const WU_UPDATE_RUL = "/management/activity_work_units";
+const METRICS_URL = "http://localhost:8080/v2/detecting/metrics";
+const DELETE_METRIC_URL = "http://localhost:8080/v2/detecting/metrics/delete/{id}";
+const CREATE_METRIC_URL = "http://localhost:8080/v2/detecting/metrics/create";
+const METRIC_DETAIL_URL = "http://localhost:8080/v2/detecting/metrics/{id}";
+const METRIC_UPDATE_URL = "http://localhost:8080/v2/detecting/metrics/update/{id}";
+const TEST_METRIC_URL = "http://localhost:8080/v2/detecting/metrics/test/{id}";
 
 export interface Metric {
     id: number;
     name: string;
     description: string;
-    sql_query: string;
+    sqlQuery: string;
 }
 
-export const fetchMetrics = async (): Promise<Metric[]> => {
-    const mockMetrics: Metric[] = [
-        {
-            id: 1,
-            name: "selectNumberOfIterations",
-            description: "Select number of iterations for given project id",
-            sql_query: "select COUNT(id) as 'numberOfIterations' from iter...",
-        },
-        {
-            id: 2,
-            name: "selectIterationsWithSubstring",
-            description: "select iterations with given substring",
-            sql_query: "select iterationName as 'iterationName', count(nam...",
-        },
-    ];
+export const fetchMetrics = async (token: string): Promise<API_RESPONSE> => {
+    return await ApiCaller({}, METRICS_URL, HTTP_METHOD.GET, token);
+}
 
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(mockMetrics);
-        }, 1000); // Simulace 1 sekundy zpoždění
-    });
+export const deleteMetric = async (metricId: number, token: string): Promise<API_RESPONSE> => {
+    const url = DELETE_METRIC_URL.replace("{id}", metricId.toString());
+    return await ApiCaller({}, url, HTTP_METHOD.POST, token);
+}
 
-    // Skutečné volání API - zakomentováno
-    // return await ApiCaller({}, METRICS_URL, HTTP_METHOD.GET, token);
+export const createMetric = async (metric: Metric, token: string): Promise<API_RESPONSE> => {
+    return await ApiCaller(metric, CREATE_METRIC_URL, HTTP_METHOD.POST, token);
+}
+
+export const fetchMetricDetail = async (metricId: number, token: string): Promise<API_RESPONSE> => {
+    const url = METRIC_DETAIL_URL.replace("{id}", metricId.toString());
+    return await ApiCaller({}, url, HTTP_METHOD.GET, token);
 };
 
-export const fetchMetricDetail = async (metricId: number): Promise<Metric | null> => {
-    const mockMetric: Metric | null = {
-        id: metricId,
-        name: "selectNumberOfIterations",
-        description: "Select number of iterations for given project id",
-        sql_query: "select COUNT(id) as 'numberOfIterations' from iter...",
-    };
+export const updateMetric = async (metricId: number, updatedMetric: Metric, token: string): Promise<API_RESPONSE> => {
+    const url = METRIC_UPDATE_URL.replace("{id}", metricId.toString());
+    return await ApiCaller(updatedMetric, url, HTTP_METHOD.POST, token);
+};
 
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(mockMetric);
-        }, 500);
-    });
+export const testSqlQuery = async (id: number, params: string, token: string): Promise<API_RESPONSE> => {
+    const url = TEST_METRIC_URL.replace("{id}", id.toString());
 
-    // Skutečné volání API - zakomentováno
-    // return await ApiCaller({}, METRIC_DETAIL_URL, HTTP_METHOD.GET, token);
+    let requestBody: any = null;
+
+    if (params) {
+        requestBody = [params];
+    }
+
+    return await ApiCaller(requestBody, url, HTTP_METHOD.POST, token);
 };
 
 
-export const deleteMetric = async (metricId: number): Promise<void> => {
-    console.log("Deleting metric with ID:", metricId);
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, 500);
-    });
-
-    // Skutečné volání API - zakomentováno
-    // return await ApiCaller({}, DELETE_METRIC_URL, HTTP_METHOD.DELETE, token);
-};
-
-export const updateMetric = async (metricId: number, updatedMetric: Metric): Promise<void> => {
-    console.log("Updating metric with ID:", metricId, "to:", updatedMetric);
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, 500);
-    });
-
-    // Skutečné volání API - zakomentováno
-    // return await ApiCaller(updatedMetric, UPDATE_METRIC_URL, HTTP_METHOD.PUT, token);
-};

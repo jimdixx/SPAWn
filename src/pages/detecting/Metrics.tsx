@@ -1,35 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { Container, Table, Button } from "react-bootstrap";
 import { Metric, fetchMetrics, fetchMetricDetail, deleteMetric } from "../../api/detecting/APIDetectingMetrics";
+import {useAuth} from "react-oidc-context";
+import {useNavigate} from "react-router-dom";
 
 const Metrics = () => {
     const [metrics, setMetrics] = useState<Metric[]>([]);
+    const navigate = useNavigate();
+    const auth = useAuth();
 
-    const fetchData = async () => {
-        try {
-            const data = await fetchMetrics();
-            setMetrics(data);
-        } catch (error) {
-            console.error("Error fetching metrics:", error);
+    const fetchMetricsData = async () => {
+        const token = auth?.user?.access_token;
+        if (!token) return;
+
+        const response = await fetchMetrics(token);
+
+        if (response.redirect) {
+            navigate(response.redirect);
+        } else {
+            const fetchedData = response.response.data as Metric[];
+            setMetrics(fetchedData);
         }
     };
 
     useEffect(() => {
-        fetchData();
+        fetchMetricsData();
     }, []);
 
     const handleDetail = async (id: number) => {
         try {
-            const metricDetail = await fetchMetricDetail(id);
-            console.log("Detail for metric with id:", id, metricDetail);
+            navigate("/metricdetail/" + id);
         } catch (error) {
             console.error("Error fetching metric detail:", error);
         }
     };
 
     const handleDelete = async (id: number) => {
+        const token = auth?.user?.access_token;
+        if (!token) return;
+
         try {
-            await deleteMetric(id);
+            await deleteMetric(id, token);
             const updatedMetrics = metrics.filter(metric => metric.id !== id);
             setMetrics(updatedMetrics);
             console.log("Metric with id", id, "deleted successfully.");
