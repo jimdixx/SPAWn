@@ -8,7 +8,7 @@ const Definition = () => {
             <h1>Definition</h1>
             <Row>
                 <Col style={{padding: '20px'}}>
-                    <h3>Indicators</h3>
+                    <h3>Indicators (Anti-patterns)</h3>
                     <p>With the help of indicators, you can look for certain patterns or phenomena in the data and draw attention to them</p>
                     <a href="/indicators"><Button variant="primary">Go to Indicators</Button></a>
                 </Col>
