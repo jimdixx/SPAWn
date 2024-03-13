@@ -5,6 +5,7 @@ const DELETE_INDICATOR_URL = "http://localhost:8080/v2/detecting/indicators/dele
 const CREATE_INDICATOR_URL = "http://localhost:8080/v2/detecting/indicators/create";
 const SCRIPT_TYPES_URL = "http://localhost:8080/v2/detecting/scripttypes";
 const INDICATOR_TYPES_URL = "http://localhost:8080/v2/detecting/indicatortypes";
+const UPDATE_INDICATOR_URL = "http://localhost:8080/v2/detecting/indicators/update/{id}";
 
 export interface Indicator {
     id: number;
@@ -71,4 +72,9 @@ export const fetchIndicatorTypes = async (token: string): Promise<IndicatorType[
 export const fetchIndicatorById = async (id: string, token: string): Promise<API_RESPONSE> => {
     const url = `${INDICATORS_URL}/${id}`;
     return await ApiCaller([], url, HTTP_METHOD.GET, token);
+};
+
+export const updateIndicator = async (id: number, updatedIndicator: Indicator, token: string): Promise<API_RESPONSE> => {
+    const url = UPDATE_INDICATOR_URL.replace("{id}", id.toString());
+    return await ApiCaller(updatedIndicator, url, HTTP_METHOD.POST, token);
 };

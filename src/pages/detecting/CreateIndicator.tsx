@@ -126,7 +126,7 @@ const CreateIndicator = () => {
                     await createParameter(parameterData, token);
                 }
 
-                navigate(`/indicators/${newIndicatorId}`);
+                navigate(`/indicatorDetail/${newIndicatorId}`);
             } else {
                 console.error("Invalid response data:", apiResponse.response);
             }
