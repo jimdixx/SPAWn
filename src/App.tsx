@@ -24,6 +24,8 @@ import MetricDetail from "./pages/detecting/MetricDetail";
 import CreateMetric from "./pages/detecting/CreateMetric";
 import CreateIndicator from "./pages/detecting/CreateIndicator";
 import IndicatorDetail from "./pages/detecting/IndicatorDetail";
+import SetParameters from "./pages/detecting/SetParameters";
+import DetectionResults from "./pages/detecting/DetectionResults";
 import OAuth2PrivateRoute from './context/OAuth2PrivateRoute';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -56,6 +58,8 @@ const App = () => {
                 <Route path="/createIndicator" element={<OAuth2PrivateRoute><CreateIndicator /></OAuth2PrivateRoute>} />
                 <Route path="/indicatorDetail" element={<OAuth2PrivateRoute><IndicatorDetail /></OAuth2PrivateRoute>} />
                 <Route path="/indicatorDetail/:id" element={<OAuth2PrivateRoute><IndicatorDetail /></OAuth2PrivateRoute>} />
+                <Route path="/setParameters" element={<OAuth2PrivateRoute><SetParameters /></OAuth2PrivateRoute>} />
+                <Route path="/detectionResults" element={<OAuth2PrivateRoute><DetectionResults /></OAuth2PrivateRoute>} />
                 <Route path="/403" element={<Forbidden />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="/500" element={<InternalServerError />} />
