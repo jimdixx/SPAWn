@@ -17,16 +17,21 @@ interface ParametersState {
   };
 }
 
+interface SelectedProject {
+    id: number;
+    name: string;
+}
+
 const SetParameters = () => {
-    const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
     const [indicatorsWithParameters, setIndicatorsWithParameters] = useState<IndicatorWithParameters[]>([]);
+    const [selectedProjects, setSelectedProjects] = useState<SelectedProject[]>([]);
     const [parameters, setParameters] = useState<ParametersState>({});
     const [isLoading, setIsLoading] = useState(false);
     const auth = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const loadedSelectedProjects = JSON.parse(localStorage.getItem('selectedProjects') || '[]');
+        const loadedSelectedProjects: SelectedProject[] = JSON.parse(localStorage.getItem('selectedProjects') || '[]');
         const loadedSelectedIndicators = JSON.parse(localStorage.getItem('selectedIndicators') || '[]');
         const loadedIndicators: Indicator[] = JSON.parse(localStorage.getItem('indicators') || '[]');
 
@@ -70,10 +75,12 @@ const SetParameters = () => {
         return;
       }
 
-      setIsLoading(true); // Zapnout indikátor načítání
+      setIsLoading(true);
+
+      const projectIds = selectedProjects.map(project => project.id);
 
       const detectionRequest = {
-        projectIds: selectedProjects,
+        projectIds: projectIds,
         indicators: indicatorsWithParameters.map(item => item.indicator.name),
         parameters: parameters
       };
@@ -85,7 +92,7 @@ const SetParameters = () => {
       } catch (error) {
         console.error("Error executing detection:", error);
       } finally {
-        setIsLoading(false); // Vypnout indikátor načítání
+        setIsLoading(false);
       }
     };
 
@@ -94,7 +101,12 @@ const SetParameters = () => {
         <Container>
             <h1>Set Parameters</h1>
             <div>
-                <h5>Selected Projects IDs:</h5> {selectedProjects.join(', ')}
+              <h5>Selected Projects:</h5>
+              <ul>
+                {selectedProjects.map(project => (
+                  <li key={project.id}>ID: {project.id}, name: {project.name}</li>
+                ))}
+              </ul>
             </div>
             <hr/>
             {indicatorsWithParameters.map((item) => (
@@ -104,10 +116,10 @@ const SetParameters = () => {
                         <Table bordered>
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Type</th>
-                                    <th>Default Value</th>
-                                    <th>Set Value</th>
+                                    <th style={{ width: '25%' }}>Name</th>
+                                    <th style={{ width: '25%' }}>Type</th>
+                                    <th style={{ width: '25%' }}>Default Value</th>
+                                    <th style={{ width: '25%' }}>Set Value</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,6 +144,9 @@ const SetParameters = () => {
             ))}
 
             <div className="text-center mt-4">
+                <Button variant="danger" onClick={() => navigate("/detection")} className="me-2" disabled={isLoading}>
+                  {isLoading ? 'Processing...' : 'Back'}
+                </Button>
                 <Button variant="success" onClick={startDetection} disabled={isLoading}>
                   {isLoading ? 'Processing...' : 'Start Detection'}
                 </Button>

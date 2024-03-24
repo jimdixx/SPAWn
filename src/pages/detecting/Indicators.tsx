@@ -143,7 +143,7 @@ const Indicators = () => {
                             <td>{indicator.indicatorType?.type_name}</td>
                             <td>{indicator.scriptType?.type_name}</td>
                             <td>
-                                <Link to={`/indicatorDetail/${indicator.id}`} className="btn btn-primary me-2">View</Link>
+                                <Link to={`/indicatorDetail/${indicator.id}`} className="btn btn-primary me-2">Detail</Link>
                                 <Button variant="danger" onClick={() => handleDelete(indicator.id)}>Delete</Button>
                             </td>
                         </tr>

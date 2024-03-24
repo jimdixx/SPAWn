@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Form, Button, Col, Row } from "react-bootstrap";
+import { Container, Table, Form, Button, Col, Row, Dropdown } from "react-bootstrap";
 import { useAuth } from "react-oidc-context";
 import { fetchProjects, Project } from "../../api/detecting/APIDetectingProjects";
 import { fetchIndicators, Indicator } from "../../api/detecting/APIDetectingIndicators";
@@ -10,6 +10,8 @@ const Detection = () => {
     const [indicators, setIndicators] = useState<Indicator[]>([]);
     const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
     const [selectedIndicators, setSelectedIndicators] = useState<Set<number>>(new Set());
+    const [filterType, setFilterType] = useState('All');
+    const [indicatorTypes, setIndicatorTypes] = useState<string[]>([]);
     const auth = useAuth();
     const navigate = useNavigate();
 
@@ -36,6 +38,34 @@ const Detection = () => {
 
         fetchData();
     }, [auth?.user?.access_token]);
+
+    useEffect(() => {
+        const savedProjects = localStorage.getItem('selectedProjects');
+        const savedIndicators = localStorage.getItem('selectedIndicators');
+
+        if (savedProjects) {
+            const selectedProjectsArray = JSON.parse(savedProjects).map((item: { id: number }) => item.id);
+            setSelectedProjects(new Set(selectedProjectsArray));
+        }
+
+        if (savedIndicators) {
+            const selectedIndicatorsArray = JSON.parse(savedIndicators);
+            setSelectedIndicators(new Set(selectedIndicatorsArray));
+        }
+    }, []);
+
+    useEffect(() => {
+            // Možné budete chtít tuto logiku upravit, aby odpovídala vašemu způsobu načítání dat
+            const uniqueTypes = Array.from(new Set(indicators.map(indicator => indicator.indicatorType.type_name)));
+            // Přidání možnosti "All" pro zobrazení všech
+            setIndicatorTypes(['All', ...uniqueTypes]);
+        }, [indicators]);
+
+    let filteredIndicators = filterType === 'All' ? indicators : indicators.filter(indicator => indicator.indicatorType.type_name === filterType);
+
+        // Zahrnutí vybraných indikátorů, které nejsou ve filtrovaném seznamu
+        const selectedAndFilteredIndicators = [...filteredIndicators, ...indicators.filter(indicator => selectedIndicators.has(indicator.id) && !filteredIndicators.includes(indicator))];
+
 
     const toggleProjectSelection = (id: number) => {
         const newSet = new Set(selectedProjects);
@@ -76,10 +106,14 @@ const Detection = () => {
     };
 
     const handleNextStep = () => {
-        const selectedProjectsArray = Array.from(selectedProjects);
+        const selectedProjectsInfo = Array.from(selectedProjects).map(projectId => {
+                const project = projects.find(p => p.id === projectId);
+                return { id: projectId, name: project ? project.name : '' };
+        });
+
         const selectedIndicatorsArray = Array.from(selectedIndicators);
 
-        localStorage.setItem('selectedProjects', JSON.stringify(selectedProjectsArray));
+        localStorage.setItem('selectedProjects', JSON.stringify(selectedProjectsInfo));
         localStorage.setItem('selectedIndicators', JSON.stringify(selectedIndicatorsArray));
         localStorage.setItem('indicators', JSON.stringify(indicators));
 
@@ -126,29 +160,41 @@ const Detection = () => {
                 </Col>
             </Row>
             <Table bordered hover>
-                <thead>
-                    <tr>
-                        <th style={{ width: '1%' }}>Select</th>
-                        <th style={{ width: '1%' }}>ID</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {indicators.map((indicator) => (
-                        <tr key={indicator.id} className={selectedIndicators.has(indicator.id) ? 'table-primary' : ''}>
-                            <td>
-                                <Form.Check type="checkbox" checked={selectedIndicators.has(indicator.id)} onChange={() => toggleIndicatorSelection(indicator.id)} />
-                            </td>
-                            <td>{indicator.id}</td>
-                            <td>{indicator.name}</td>
-                            <td>{indicator.indicatorType.type_name}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+                            <thead>
+                                <tr>
+                                    <th style={{ width: '1%' }}>Select</th>
+                                    <th style={{ width: '1%' }}>ID</th>
+                                    <th style={{ width: '50%' }}>Name</th>
+                                    <th>
+                                        Type
+                                        <Dropdown>
+                                            <Dropdown.Toggle variant="secondary" size="sm" id="dropdown-basic">
+                                                {filterType}
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu>
+                                                {indicatorTypes.map((type, index) => (
+                                                    <Dropdown.Item key={index} onClick={() => setFilterType(type)}>{type}</Dropdown.Item>
+                                                ))}
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {selectedAndFilteredIndicators.map((indicator) => (
+                                    <tr key={indicator.id} className={selectedIndicators.has(indicator.id) ? 'table-primary' : ''}>
+                                        <td>
+                                            <Form.Check type="checkbox" checked={selectedIndicators.has(indicator.id)} onChange={() => toggleIndicatorSelection(indicator.id)} />
+                                        </td>
+                                        <td>{indicator.id}</td>
+                                        <td>{indicator.name}</td>
+                                        <td>{indicator.indicatorType.type_name}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
             <div className="d-flex justify-content-center mt-4">
-                <Button variant="primary" onClick={handleNextStep}>Next Step</Button>
+                <Button variant="primary" onClick={handleNextStep} disabled={selectedProjects.size === 0 || selectedIndicators.size === 0}>Next Step</Button>
             </div>
         </Container>
     );
